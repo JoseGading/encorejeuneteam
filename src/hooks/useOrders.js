@@ -11,9 +11,10 @@ import { dbService } from '../firebase';
  * 
  * @param {Function} addNotification - Notification handler from parent
  * @param {Array} employees - Employees list for createdBy
+ * @param {Object} isSyncingRef - Ref to check if syncing from Firebase
  * @returns {Object} Orders state and handlers
  */
-export const useOrders = (addNotification, employees = []) => {
+export const useOrders = (addNotification, employees = [], isSyncingRef = { current: false }) => {
   // State
   const [orders, setOrders] = useState([]);
   const [isOrdersLoaded, setIsOrdersLoaded] = useState(false); // ✅ Track if orders loaded from Firebase
@@ -62,12 +63,16 @@ export const useOrders = (addNotification, employees = []) => {
     const updatedOrders = [newOrder, ...orders];
     setOrders(updatedOrders);
 
-    // ✅ Save to Firebase immediately
-    try {
-      await dbService.saveOrders(updatedOrders);
-      console.log('✅ Order saved to Firebase');
-    } catch (error) {
-      console.error('❌ Error saving order:', error);
+    // ✅ Save to Firebase immediately (skip if syncing from Firebase)
+    if (!isSyncingRef.current) {
+      try {
+        await dbService.saveOrders(updatedOrders);
+        console.log('✅ Order saved to Firebase');
+      } catch (error) {
+        console.error('❌ Error saving order:', error);
+      }
+    } else {
+      console.log('⏭️ Skipped save - syncing from Firebase');
     }
 
     // Reset form
@@ -83,7 +88,7 @@ export const useOrders = (addNotification, employees = []) => {
 
     addNotification?.(`✅ Order dari ${newOrder.username} berhasil ditambahkan!`, 'success');
     return true;
-  }, [orderForm, employees, addNotification, orders, isOrdersLoaded]);
+  }, [orderForm, employees, addNotification, orders, isOrdersLoaded, isSyncingRef]);
 
   const updateOrder = useCallback(async (id, updates) => {
     if (!isOrdersLoaded) {
@@ -97,16 +102,20 @@ export const useOrders = (addNotification, employees = []) => {
     );
     setOrders(updatedOrders);
     
-    // ✅ Save to Firebase immediately
-    try {
-      await dbService.saveOrders(updatedOrders);
-      console.log('✅ Order updated in Firebase');
-    } catch (error) {
-      console.error('❌ Error updating order:', error);
+    // ✅ Save to Firebase immediately (skip if syncing from Firebase)
+    if (!isSyncingRef.current) {
+      try {
+        await dbService.saveOrders(updatedOrders);
+        console.log('✅ Order updated in Firebase');
+      } catch (error) {
+        console.error('❌ Error updating order:', error);
+      }
+    } else {
+      console.log('⏭️ Skipped save - syncing from Firebase');
     }
     
     addNotification?.('✅ Order berhasil diupdate!', 'success');
-  }, [addNotification, orders, isOrdersLoaded]);
+  }, [addNotification, orders, isOrdersLoaded, isSyncingRef]);
 
   const updateOrderStatus = useCallback(async (id, newStatus, processNote = '') => {
     if (!isOrdersLoaded) {
@@ -143,12 +152,16 @@ export const useOrders = (addNotification, employees = []) => {
     });
     setOrders(updatedOrders);
     
-    // ✅ Save to Firebase immediately
-    try {
-      await dbService.saveOrders(updatedOrders);
-      console.log('✅ Order status updated in Firebase');
-    } catch (error) {
-      console.error('❌ Error updating order status:', error);
+    // ✅ Save to Firebase immediately (skip if syncing from Firebase)
+    if (!isSyncingRef.current) {
+      try {
+        await dbService.saveOrders(updatedOrders);
+        console.log('✅ Order status updated in Firebase');
+      } catch (error) {
+        console.error('❌ Error updating order status:', error);
+      }
+    } else {
+      console.log('⏭️ Skipped save - syncing from Firebase');
     }
 
     const statusText = newStatus === 'pending' ? 'Pending' :
@@ -215,7 +228,7 @@ export const useOrders = (addNotification, employees = []) => {
     } else {
       addNotification?.(`✅ Order diupdate ke ${statusText}!`, 'success');
     }
-  }, [addNotification, orders, employees, isOrdersLoaded]);
+  }, [addNotification, orders, employees, isOrdersLoaded, isSyncingRef]);
 
   const deleteOrder = useCallback(async (id) => {
     if (!isOrdersLoaded) {
@@ -226,17 +239,21 @@ export const useOrders = (addNotification, employees = []) => {
       const updatedOrders = orders.filter(o => o.id !== id);
       setOrders(updatedOrders);
       
-      // ✅ Save to Firebase immediately
-      try {
-        await dbService.saveOrders(updatedOrders);
-        console.log('✅ Order deleted from Firebase');
-      } catch (error) {
-        console.error('❌ Error deleting order:', error);
+      // ✅ Save to Firebase immediately (skip if syncing from Firebase)
+      if (!isSyncingRef.current) {
+        try {
+          await dbService.saveOrders(updatedOrders);
+          console.log('✅ Order deleted from Firebase');
+        } catch (error) {
+          console.error('❌ Error deleting order:', error);
+        }
+      } else {
+        console.log('⏭️ Skipped save - syncing from Firebase');
       }
       
       addNotification?.('✅ Order berhasil dihapus!', 'success');
     }
-  }, [addNotification, orders, isOrdersLoaded]);
+  }, [addNotification, orders, isOrdersLoaded, isSyncingRef]);
 
   const addOrderNote = useCallback(async (id, note) => {
     if (!isOrdersLoaded) {
@@ -263,16 +280,20 @@ export const useOrders = (addNotification, employees = []) => {
     });
     setOrders(updatedOrders);
     
-    // ✅ Save to Firebase immediately
-    try {
-      await dbService.saveOrders(updatedOrders);
-      console.log('✅ Note added to Firebase');
-    } catch (error) {
-      console.error('❌ Error adding note:', error);
+    // ✅ Save to Firebase immediately (skip if syncing from Firebase)
+    if (!isSyncingRef.current) {
+      try {
+        await dbService.saveOrders(updatedOrders);
+        console.log('✅ Note added to Firebase');
+      } catch (error) {
+        console.error('❌ Error adding note:', error);
+      }
+    } else {
+      console.log('⏭️ Skipped save - syncing from Firebase');
     }
     
     addNotification?.('✅ Catatan berhasil ditambahkan!', 'success');
-  }, [employees, addNotification, orders, isOrdersLoaded]);
+  }, [employees, addNotification, orders, isOrdersLoaded, isSyncingRef]);
 
   // Computed values
   const filteredOrders = orders.filter(order => {
