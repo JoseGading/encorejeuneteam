@@ -495,6 +495,11 @@ const AttendanceSystem = () => {
         
         // ✅ CRITICAL: Trigger immediate save for calendar data
         needsImmediateSave.current = true;
+        
+        // ✅ Force immediate save by calling saveEmployeesDirectly
+        setTimeout(() => {
+          saveEmployeesDirectly(updated);
+        }, 50);
       } else {
         // Overtime: Update calendar to show 'lembur' status
         // Keep the base status (hadir/telat) from shift 1
@@ -566,6 +571,11 @@ const AttendanceSystem = () => {
         
         // ✅ CRITICAL: Trigger immediate save for calendar data
         needsImmediateSave.current = true;
+        
+        // ✅ Force immediate save by calling saveEmployeesDirectly
+        setTimeout(() => {
+          saveEmployeesDirectly(updated);
+        }, 50);
       }
       
       if (isOvertime) {
@@ -1840,15 +1850,10 @@ const AttendanceSystem = () => {
       if (data && Array.isArray(data)) {
         console.log('📦 Orders listener triggered:', data.length, 'orders');
         
-        // Update orders state from Firebase
-        isSyncingFromFirebase.current = true;
-        ordersHook.setOrders(data);
-        setTimeout(() => { isSyncingFromFirebase.current = false; }, 100);
-        
-        // Get current orders from hook (for comparison)
+        // Get current orders from hook BEFORE updating (for comparison)
         const currentOrders = ordersHook?.orders || [];
         
-        // Detect status changes for notifications
+        // Detect status changes for notifications BEFORE updating state
         data.forEach(newOrder => {
           const oldOrder = currentOrders.find(o => o.id === newOrder.id);
           
@@ -1897,8 +1902,10 @@ const AttendanceSystem = () => {
           }
         });
         
-        // ❌ REMOVED: DO NOT update orders here - causes data loss!
-        // Orders are managed by useOrders hook and saved directly
+        // ✅ Update orders state from Firebase AFTER notifications processed
+        isSyncingFromFirebase.current = true;
+        ordersHook.setOrders(data);
+        setTimeout(() => { isSyncingFromFirebase.current = false; }, 100);
       }
     });
     
