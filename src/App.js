@@ -1943,8 +1943,8 @@ const AttendanceSystem = () => {
         dbService.saveYearlyAttendance(yearlyAttendance),
         dbService.saveProductivityData(productivityData),
         dbService.saveCurrentPeriod(currentMonth, currentYear),
-        dbService.saveShiftTasks(shiftTasks),
-        dbService.saveOrders(ordersHook?.orders || [])
+        dbService.saveShiftTasks(shiftTasks)
+        // ✅ Orders saved directly in useOrders hook - DO NOT save here
       ]);
       
       console.log('✅ IMMEDIATE SAVE COMPLETED at', new Date().toLocaleTimeString());
@@ -1970,8 +1970,8 @@ const AttendanceSystem = () => {
         dbService.saveYearlyAttendance(yearlyAttendance),
         dbService.saveProductivityData(productivityData),
         dbService.saveCurrentPeriod(currentMonth, currentYear),
-        dbService.saveShiftTasks(shiftTasks),
-        dbService.saveOrders(ordersHook?.orders || [])
+        dbService.saveShiftTasks(shiftTasks)
+        // ✅ Orders saved directly in useOrders hook - DO NOT save here
       ]);
       
       console.log('✅ DIRECT SAVE COMPLETED at', new Date().toLocaleTimeString());
@@ -2031,8 +2031,8 @@ const AttendanceSystem = () => {
           dbService.saveYearlyAttendance(yearlyAttendance),
           dbService.saveProductivityData(productivityData),
           dbService.saveCurrentPeriod(currentMonth, currentYear),
-          dbService.saveShiftTasks(shiftTasks),
-          dbService.saveOrders(ordersHook?.orders || [])
+          dbService.saveShiftTasks(shiftTasks)
+          // ✅ Orders saved directly in useOrders hook - DO NOT save here
         ]);
         
         console.log('✅ Save complete at', new Date().toLocaleTimeString());
@@ -2267,7 +2267,7 @@ const AttendanceSystem = () => {
   };
 
   // ✅ REFACTORED: Initialize orders hook (after addNotification is defined)
-  const ordersHook = useOrders(addNotification, employees);
+  const ordersHook = useOrders(addNotification, employees, isSyncingFromFirebase);
 
   // ✅ Load orders ONCE after ordersHook is ready AND initial data loaded
   useEffect(() => {
