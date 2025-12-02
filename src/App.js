@@ -1835,18 +1835,20 @@ const AttendanceSystem = () => {
       }
     });
     
-    // 🔔 Listen to orders changes for real-time notifications ONLY
-    // ⚠️ DO NOT update orders data here - it causes data loss!
-    // Orders are loaded once and saved directly in useOrders hook
+    // 🔔 Listen to orders changes for real-time updates
     const unsubscribeOrders = dbService.onOrdersChange((data) => {
       if (data && Array.isArray(data)) {
         console.log('📦 Orders listener triggered:', data.length, 'orders');
         
-        // Get current orders from hook (for comparison only)
+        // Update orders state from Firebase
+        isSyncingFromFirebase.current = true;
+        ordersHook.setOrders(data);
+        setTimeout(() => { isSyncingFromFirebase.current = false; }, 100);
+        
+        // Get current orders from hook (for comparison)
         const currentOrders = ordersHook?.orders || [];
         
-        // ONLY detect status changes for notifications
-        // DO NOT update orders state here!
+        // Detect status changes for notifications
         data.forEach(newOrder => {
           const oldOrder = currentOrders.find(o => o.id === newOrder.id);
           
