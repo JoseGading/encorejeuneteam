@@ -18,13 +18,46 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+/**
+ * Sanitize data for Firebase by removing undefined values
+ * Firebase Firestore does not accept undefined values - must be null or removed
+ * @param {any} obj - Object to sanitize
+ * @returns {any} - Sanitized object
+ */
+const sanitizeForFirebase = (obj) => {
+  if (obj === null || obj === undefined) {
+    return null;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeForFirebase(item)).filter(item => item !== undefined);
+  }
+  
+  if (typeof obj === 'object' && obj !== null) {
+    const sanitized = {};
+    for (const [key, value] of Object.entries(obj)) {
+      const sanitizedValue = sanitizeForFirebase(value);
+      // Only add field if value is not undefined
+      if (sanitizedValue !== undefined) {
+        sanitized[key] = sanitizedValue;
+      }
+    }
+    return sanitized;
+  }
+  
+  return obj;
+};
+
 // Database service
 export const dbService = {
   // Save employees data
   async saveEmployees(employees) {
     try {
+      // ✅ CRITICAL FIX: Sanitize data before saving to remove undefined values
+      const sanitizedEmployees = sanitizeForFirebase(employees);
+      
       await setDoc(doc(db, 'attendance', 'employees'), {
-        data: employees,
+        data: sanitizedEmployees,
         lastUpdated: new Date().toISOString()
       });
       console.log('✅ Employees saved to Firestore');
@@ -51,8 +84,9 @@ export const dbService = {
   // Save attentions data
   async saveAttentions(attentions) {
     try {
+      const sanitizedAttentions = sanitizeForFirebase(attentions);
       await setDoc(doc(db, 'attendance', 'attentions'), {
-        data: attentions,
+        data: sanitizedAttentions,
         lastUpdated: new Date().toISOString()
       });
       console.log('✅ Attentions saved to Firestore');
@@ -65,8 +99,9 @@ export const dbService = {
   // Save yearly attendance
   async saveYearlyAttendance(yearlyAttendance) {
     try {
+      const sanitizedYearlyAttendance = sanitizeForFirebase(yearlyAttendance);
       await setDoc(doc(db, 'attendance', 'yearlyAttendance'), {
-        data: yearlyAttendance,
+        data: sanitizedYearlyAttendance,
         lastUpdated: new Date().toISOString()
       });
       console.log('✅ Yearly attendance saved to Firestore');
@@ -79,8 +114,9 @@ export const dbService = {
   // Save productivity data
   async saveProductivityData(productivityData) {
     try {
+      const sanitizedProductivityData = sanitizeForFirebase(productivityData);
       await setDoc(doc(db, 'attendance', 'productivityData'), {
-        data: productivityData,
+        data: sanitizedProductivityData,
         lastUpdated: new Date().toISOString()
       });
       console.log('✅ Productivity data saved to Firestore');
@@ -108,8 +144,9 @@ export const dbService = {
   // Save shift tasks
   async saveShiftTasks(shiftTasks) {
     try {
+      const sanitizedShiftTasks = sanitizeForFirebase(shiftTasks);
       await setDoc(doc(db, 'attendance', 'shiftTasks'), {
-        data: shiftTasks,
+        data: sanitizedShiftTasks,
         lastUpdated: new Date().toISOString()
       });
       console.log('✅ Shift tasks saved to Firestore');
@@ -195,8 +232,9 @@ export const dbService = {
   // Save shift schedule
   async saveShiftSchedule(shiftSchedule) {
     try {
+      const sanitizedShiftSchedule = sanitizeForFirebase(shiftSchedule);
       await setDoc(doc(db, 'attendance', 'shiftSchedule'), {
-        data: shiftSchedule,
+        data: sanitizedShiftSchedule,
         lastUpdated: new Date().toISOString()
       });
       console.log('✅ Shift schedule saved to Firestore');
@@ -219,8 +257,9 @@ export const dbService = {
   // Save orders data
   async saveOrders(orders) {
     try {
+      const sanitizedOrders = sanitizeForFirebase(orders);
       await setDoc(doc(db, 'attendance', 'orders'), {
-        data: orders,
+        data: sanitizedOrders,
         lastUpdated: new Date().toISOString()
       });
       console.log('✅ Orders saved to Firestore');
