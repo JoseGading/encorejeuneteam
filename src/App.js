@@ -1506,11 +1506,21 @@ const AttendanceSystem = () => {
                       if (firebaseTask) {
                         // If completed in either source, mark as completed
                         const isCompleted = localTask.completed || firebaseTask.completed;
+                        
+                        // ✅ CRITICAL FIX: Preserve pause state from local (more recent than Firebase)
+                        // If local task is paused, keep pause state; otherwise use Firebase state
+                        const preservePauseState = localTask.paused || localTask.pauseStartTime || (localTask.pauseHistory && localTask.pauseHistory.length > 0);
+                        
                         return {
-                          ...localTask,
+                          ...firebaseTask, // Start with Firebase data
+                          ...localTask,    // Override with local data (preserves ALL local fields including pause)
                           completed: isCompleted,
                           progress: isCompleted ? 100 : Math.max(localTask.progress || 0, firebaseTask.progress || 0),
-                          completedAt: isCompleted ? (localTask.completedAt || firebaseTask.completedAt) : null
+                          completedAt: isCompleted ? (localTask.completedAt || firebaseTask.completedAt) : null,
+                          // ✅ ALWAYS preserve local pause state if exists
+                          paused: preservePauseState ? localTask.paused : firebaseTask.paused,
+                          pauseStartTime: preservePauseState ? localTask.pauseStartTime : firebaseTask.pauseStartTime,
+                          pauseHistory: preservePauseState ? localTask.pauseHistory : firebaseTask.pauseHistory
                         };
                       }
                       return localTask;
@@ -2508,8 +2518,13 @@ const AttendanceSystem = () => {
     await saveEmployeesDirectly(updatedEmployees);
     
     console.log(`✅ Confirm pause completed`);
-    setIsProcessing(false);
-    isProcessingRef.current = false;
+    
+    // ✅ CRITICAL FIX: Keep processing flag true for a moment to ensure Firebase write completes
+    // before listener processes incoming updates
+    setTimeout(() => {
+      setIsProcessing(false);
+      isProcessingRef.current = false;
+    }, 500); // 500ms delay to ensure Firebase write propagates
   };
 
   const resumeTask = async (empId, type, taskId) => {
@@ -2569,8 +2584,12 @@ const AttendanceSystem = () => {
     await saveEmployeesDirectly(updatedEmployees);
     
     console.log(`✅ Resume task completed`);
-    setIsProcessing(false);
-    isProcessingRef.current = false;
+    
+    // ✅ CRITICAL FIX: Keep processing flag true for a moment to ensure Firebase write completes
+    setTimeout(() => {
+      setIsProcessing(false);
+      isProcessingRef.current = false;
+    }, 500); // 500ms delay to ensure Firebase write propagates
   };
 
   const endTask = async (empId, type, taskId) => {
