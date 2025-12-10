@@ -1,16 +1,32 @@
 import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
-import { Calendar, Users, BarChart3, Plus, Trash2, CheckCircle, Clock, AlertCircle, Sparkles, ChevronLeft, ChevronRight, Home, Play, Square, Moon, Sun, Palette, Bell, Upload, X, Trophy, TrendingUp, Zap, GripVertical, Pause, Coffee, Eye, EyeOff, Shield, Edit, Save, Lock, LogOut, Settings, CalendarDays, ShoppingCart, Package, MessageSquare, Filter, Search, Star } from 'lucide-react';
+import { 
+  Bell, X, Upload, Plus, CheckCircle, Trash2, Clock, Trophy, 
+  Lock, Home, ShoppingCart, BarChart3, CalendarDays, Shield, 
+  Coffee, EyeOff, Eye, Calendar, Pause, Moon, Sun, Palette
+} from 'lucide-react';
 import { dbService, authService } from './firebase';
 
-// ✅ REFACTORED: Import modular components and hooks
+// Hooks
 import { useOrders } from './hooks/useOrders';
+
+// Components
 import { OrderanPage } from './components/Orderan/OrderanPage';
 import { LeaderboardPage } from './components/Leaderboard/LeaderboardPage';
 import { DashboardPage } from './components/Dashboard/DashboardPage';
 import { StatisticsPage } from './components/Statistics/StatisticsPage';
 import { ShiftSchedulePage } from './components/ShiftSchedule/ShiftSchedulePage';
 import { AdminPanel } from './components/Admin/AdminPanel';
-import { THEMES } from './utils/constants';
+
+// Config & Utils (✅ Unified imports from single source)
+import { 
+  INITIAL_EMPLOYEES, 
+  CLEANING_TASKS_PAGI, 
+  CLOSING_TASKS_MALAM, 
+  MONTH_NAMES,
+  APP_THEMES 
+} from './config';
+import { generateYearlyAttendance } from './utils/attendanceHelpers';
+import { shuffleWithSeed } from './utils/taskDistribution';
 
 const AttendanceSystem = () => {
   const [activePage, setActivePage] = useState('dashboard');
@@ -36,89 +52,14 @@ const AttendanceSystem = () => {
   const hasLoadedInitialData = useRef(false); // Flag to prevent saving before data loaded
   const [shouldLoadOrders, setShouldLoadOrders] = useState(false); // ✅ State to trigger orders load
   const needsImmediateSave = useRef(false); // ✅ Flag to trigger immediate save for critical actions
-  const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
-  const themes = {
-    light: {
-      name: 'Light',
-      icon: Sun,
-      bg: 'from-slate-50 via-white to-slate-50',
-      card: 'bg-white border-slate-200',
-      text: 'text-slate-900',
-      subtext: 'text-slate-600',
-      header: 'from-slate-800 to-slate-900',
-      nav: 'bg-white border-slate-200',
-      navActive: 'bg-slate-900 text-white',
-      navInactive: 'text-slate-600 hover:bg-slate-50',
-      input: 'border-slate-200 focus:border-slate-400 bg-white text-slate-900',
-      badge: 'bg-slate-100 text-slate-700 border-slate-200'
-    },
-    dark: {
-      name: 'Dark',
-      icon: Moon,
-      bg: 'from-slate-900 via-slate-800 to-slate-900',
-      card: 'bg-slate-800 border-slate-700',
-      text: 'text-slate-100',
-      subtext: 'text-slate-400',
-      header: 'from-slate-950 to-slate-900',
-      nav: 'bg-slate-800 border-slate-700',
-      navActive: 'bg-blue-600 text-white',
-      navInactive: 'text-slate-300 hover:bg-slate-700',
-      input: 'border-slate-600 focus:border-slate-500 bg-slate-700 text-white',
-      badge: 'bg-slate-700 text-slate-200 border-slate-600'
-    },
-    ocean: {
-      name: 'Ocean',
-      icon: Palette,
-      bg: 'from-blue-50 via-cyan-50 to-blue-50',
-      card: 'bg-white border-blue-200',
-      text: 'text-blue-900',
-      subtext: 'text-blue-600',
-      header: 'from-blue-900 to-cyan-800',
-      nav: 'bg-white border-blue-200',
-      navActive: 'bg-blue-600 text-white',
-      navInactive: 'text-blue-600 hover:bg-blue-50',
-      input: 'border-blue-200 focus:border-blue-400 bg-white text-blue-900',
-      badge: 'bg-blue-100 text-blue-700 border-blue-200'
-    },
-    sunset: {
-      name: 'Sunset',
-      icon: Palette,
-      bg: 'from-orange-50 via-pink-50 to-purple-50',
-      card: 'bg-white border-orange-200',
-      text: 'text-slate-900',
-      subtext: 'text-orange-600',
-      header: 'from-orange-600 to-pink-600',
-      nav: 'bg-white border-orange-200',
-      navActive: 'bg-gradient-to-r from-orange-500 to-pink-500 text-white',
-      navInactive: 'text-orange-600 hover:bg-orange-50',
-      input: 'border-orange-200 focus:border-orange-400 bg-white text-slate-900',
-      badge: 'bg-orange-100 text-orange-700 border-orange-200'
-    }
-  };
+  // ✅ Use centralized theme configuration
+  const currentTheme = APP_THEMES[theme];
 
-  const currentTheme = themes[theme];
-
-  const generateYearlyAttendance = () => {
-    const data = {};
-    ['Desta', 'Ariel', 'Robert'].forEach(name => {
-      data[name] = {};
-      for (let month = 0; month < 12; month++) {
-        const daysInMonth = new Date(currentYear, month + 1, 0).getDate();
-        data[name][month] = {};
-        for (let day = 1; day <= daysInMonth; day++) {
-          // Default status is 'belum' (empty/no data) instead of 'hadir'
-          data[name][month][day] = { status: 'belum', lateHours: 0 };
-        }
-      }
-    });
-    return data;
-  };
-
-  const [yearlyAttendance, setYearlyAttendance] = useState(generateYearlyAttendance());
+  // ✅ Use utility function for attendance generation
+  const [yearlyAttendance, setYearlyAttendance] = useState(() => generateYearlyAttendance(currentYear));
   
   const [attentions, setAttentions] = useState([]);
   const [newAttentionText, setNewAttentionText] = useState('');
@@ -127,27 +68,10 @@ const AttendanceSystem = () => {
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showAttentionSection, setShowAttentionSection] = useState(false);
 
-  // Shift-based cleaning tasks system (Pagi & Malam) - Now as state for admin editing
+  // ✅ Use centralized shift tasks from config (editable by admin)
   const [shiftTasks, setShiftTasks] = useState({
-    pagi: [
-      'Sapu ruang kerja, ruang tamu, dan teras',
-      'Buang semua sampah (ganti kresek baru)',
-      'Lap benda area kerja (meja kerja, PC dll)',
-      'Cuci semua piring kotor',
-      'Lap meja dapur, rapikan alat makan (minyak/panci di atas kompor jika kotor)',
-      'Cek kamar mandi (gosok bagian bak mandi jika sudah kotor)',
-      'Rapikan dan bersihkan area meja kerja'
-    ],
-    malam: [
-      'Sapu area dapur, depan kamar, belakang ruang tamu',
-      'Lap/bersihkan wastafel cuci (pastikan bersih, tidak ada sisa makanan)',
-      'Rapikan dapur (jika ada alat yang berantakan)',
-      'Bersihkan kamar mandi 2 secara menyeluruh',
-      'Pastikan air tandon terisi penuh',
-      'Rapikan dan bersihkan area meja kerja',
-      'Pastikan semua pintu garasi dan depan samping terkunci',
-      'Matikan semua lampu kecuali kamar dan depan rumah'
-    ]
+    pagi: [...CLEANING_TASKS_PAGI],
+    malam: [...CLOSING_TASKS_MALAM]
   });
 
   // Shift Schedule State
@@ -167,39 +91,40 @@ const AttendanceSystem = () => {
   };
   const currentWeekRef = useRef(getSavedWeek()); // Keep track of current week to prevent reset
 
-  // 📦 ORDERS MANAGEMENT - REFACTORED TO USE CUSTOM HOOK
-  // Note: useOrders hook is defined later, so we'll initialize it after addNotification is defined
-  // Temporary placeholder - will be properly initialized below
-  const ordersHookPlaceholder = null;
-  
   // UI states for Orderan page (kept in App for now for shared access)
   const [showAddForm, setShowAddForm] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [newNote, setNewNote] = useState('');
+  const [notifications, setNotifications] = useState([]);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [izinModal, setIzinModal] = useState(null);
+  const [izinReason, setIzinReason] = useState('');
+  const [productivityData, setProductivityData] = useState([]);
 
-  // Shuffle array with seed (for consistent daily randomization)
-  const shuffleWithSeed = (array, seed) => {
-    const arr = [...array];
-    let currentIndex = arr.length;
-    let temporaryValue, randomIndex;
-    
-    // Simple seeded random number generator
-    const seededRandom = (max, seed) => {
-      const x = Math.sin(seed++) * 10000;
-      return Math.floor((x - Math.floor(x)) * max);
+  // ✅ Define addNotification function EARLY (before ordersHook)
+  const addNotification = (message, type = 'info', id = null) => {
+    const notif = {
+      id: id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      message,
+      type,
+      timestamp: new Date().toISOString()
     };
     
-    while (currentIndex !== 0) {
-      randomIndex = seededRandom(currentIndex, seed);
-      currentIndex -= 1;
-      temporaryValue = arr[currentIndex];
-      arr[currentIndex] = arr[randomIndex];
-      arr[randomIndex] = temporaryValue;
-      seed++;
-    }
+    setNotifications(prev => {
+      const recentDuplicate = prev.find(n => 
+        n.message === message && 
+        (Date.now() - new Date(n.timestamp).getTime()) < 5000
+      );
+      if (recentDuplicate) return prev;
+      return [...prev, notif];
+    });
     
-    return arr;
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== notif.id));
+    }, 10000);
   };
+
+  // ✅ shuffleWithSeed already imported from utils/taskDistribution.js
 
   // Distribute tasks fairly with rotation based on date and shift
   const distributeTasks = (shift, employeeCount) => {
@@ -291,6 +216,9 @@ const AttendanceSystem = () => {
 
   // Initialize with default - Firebase will sync
   const [employees, setEmployees] = useState(initializeEmployees());
+
+  // ✅ Initialize ordersHook EARLY (right after employees state)
+  const ordersHook = useOrders(addNotification, employees, isSyncingFromFirebase);
 
   // Check-in employee dengan sistem absen otomatis
   const checkInEmployee = async (empId) => {
@@ -594,12 +522,10 @@ const AttendanceSystem = () => {
   };
 
   const [newTask, setNewTask] = useState({});
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [notifications, setNotifications] = useState([]);
+  // ✅ REMOVED DUPLICATES: currentTime, notifications, productivityData, izinModal, izinReason moved to top (lines 93-97)
   const [draggedTask, setDraggedTask] = useState(null);
   const [isLiveSync, setIsLiveSync] = useState(false); // ✅ Track real-time sync status
   const [lastSyncTime, setLastSyncTime] = useState(null); // ✅ Track last sync time
-  const [productivityData, setProductivityData] = useState([]);
   const [leaderboardPeriod, setLeaderboardPeriod] = useState('today');
   const [leaderboardTaskType, setLeaderboardTaskType] = useState('all'); // all, cleaning, work
   const [expandedLeaderboard, setExpandedLeaderboard] = useState(null); // employee ID to show task details
@@ -609,8 +535,6 @@ const AttendanceSystem = () => {
   const [pauseReason, setPauseReason] = useState('');
   const [checkedInEmployees, setCheckedInEmployees] = useState([]);
   const [showCheckInModal, setShowCheckInModal] = useState(true);
-  const [izinModal, setIzinModal] = useState(null);
-  const [izinReason, setIzinReason] = useState('');
   const [pauseReminders, setPauseReminders] = useState([]);
   const [orderReminders, setOrderReminders] = useState([]); // 🔔 Order processing reminders
   const [selectedDate, setSelectedDate] = useState(new Date().toDateString());
@@ -1252,11 +1176,13 @@ const AttendanceSystem = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Debug: Log when orderReminders state changes
+  // Debug: Log when orderReminders state changes (DEV only)
   useEffect(() => {
-    console.log('🔔 ORDER REMINDERS STATE CHANGED:', orderReminders.length, 'reminders');
-    if (orderReminders.length > 0) {
-      console.log('📌 Active reminders:', orderReminders);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔔 ORDER REMINDERS STATE CHANGED:', orderReminders.length, 'reminders');
+      if (orderReminders.length > 0) {
+        console.log('📌 Active reminders:', orderReminders);
+      }
     }
   }, [orderReminders]);
 
@@ -1523,6 +1449,11 @@ const AttendanceSystem = () => {
           
           isSyncingFromFirebase.current = true;
           
+          // ✅ AUTO-RESET: Reset sync flag after processing
+          setTimeout(() => {
+            isSyncingFromFirebase.current = false;
+          }, 100);
+          
           // ✅ CRITICAL FIX: Smart sync - protect active shifts but allow end shift sync
           setEmployees(prevEmployees => {
             return migratedData.map((firebaseEmp, idx) => {
@@ -1534,12 +1465,16 @@ const AttendanceSystem = () => {
                 const localIsCheckedIn = localEmp.checkedIn === true;
                 const firebaseIsCheckedIn = firebaseEmp.checkedIn === true;
                 
-                console.log(`🔍 SYNC CHECK: ${localEmp.name} - Local checkedIn: ${localIsCheckedIn}, Firebase checkedIn: ${firebaseIsCheckedIn}`);
+                if (process.env.NODE_ENV === 'development') {
+                  console.log(`🔍 SYNC CHECK: ${localEmp.name} - Local checkedIn: ${localIsCheckedIn}, Firebase checkedIn: ${firebaseIsCheckedIn}`);
+                }
                 
                 // Case 1: Local checked in, Firebase also checked in
                 // → Protect local data BUT merge task completion status
                 if (localIsCheckedIn && firebaseIsCheckedIn) {
-                  console.warn(`🔒 PROTECTED: ${localEmp.name} is checked in - preserving local shift data`);
+                  if (process.env.NODE_ENV === 'development') {
+                    console.warn(`🔒 PROTECTED: ${localEmp.name} is checked in - preserving local shift data`);
+                  }
                   
                   // ✅ CRITICAL FIX: Merge task completion status from both sources
                   // ✅ FIX BUG: Don't restore tasks that were ended (moved to history)
@@ -1591,7 +1526,9 @@ const AttendanceSystem = () => {
                     index === self.findIndex((t) => t.id === task.id && t.completedAt === task.completedAt)
                   );
                   
-                  console.log(`🔄 MERGE: ${localEmp.name} - Cleaning: ${localEmp.cleaningTasks?.length || 0}→${mergedCleaningTasks.length}, Work: ${localEmp.workTasks?.length || 0}→${mergedWorkTasks.length}, History: ${localHistory.length}→${mergedHistory.length}`);
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log(`🔄 MERGE: ${localEmp.name} - Cleaning: ${localEmp.cleaningTasks?.length || 0}→${mergedCleaningTasks.length}, Work: ${localEmp.workTasks?.length || 0}→${mergedWorkTasks.length}, History: ${localHistory.length}→${mergedHistory.length}`);
+                  }
                   
                   return {
                     ...localEmp, // Keep ALL local data
@@ -1621,7 +1558,9 @@ const AttendanceSystem = () => {
                     index === self.findIndex((t) => t.id === task.id && t.shiftDate === task.shiftDate)
                   );
                   
-                  console.log(`🔄 MERGE HISTORY (Case 2): ${localEmp.name} - Local: ${localHistory.length}, Firebase: ${firebaseHistory.length}, Merged: ${mergedHistory.length}`);
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log(`🔄 MERGE HISTORY (Case 2): ${localEmp.name} - Local: ${localHistory.length}, Firebase: ${firebaseHistory.length}, Merged: ${mergedHistory.length}`);
+                  }
                   
                   return {
                     ...firebaseEmp,
@@ -1646,7 +1585,9 @@ const AttendanceSystem = () => {
                     index === self.findIndex((t) => t.id === task.id && t.shiftDate === task.shiftDate)
                   );
                   
-                  console.log(`🔄 MERGE HISTORY: ${localEmp.name} - Local: ${localHistory.length}, Firebase: ${firebaseHistory.length}, Merged: ${mergedHistory.length}`);
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log(`🔄 MERGE HISTORY: ${localEmp.name} - Local: ${localHistory.length}, Firebase: ${firebaseHistory.length}, Merged: ${mergedHistory.length}`);
+                  }
                   
                   return {
                     ...firebaseEmp,
@@ -1657,7 +1598,9 @@ const AttendanceSystem = () => {
                 
                 // Case 4: Both NOT checked in - do smart merge with task completion
                 else {
-                  console.log(`🔄 CASE 4: ${localEmp.name} - Both not checked in, merging data`);
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log(`🔄 CASE 4: ${localEmp.name} - Both not checked in, merging data`);
+                  }
                   
                   const hasLocalCleaningTasks = localEmp.cleaningTasks && localEmp.cleaningTasks.length > 0;
                   const hasLocalWorkTasks = localEmp.workTasks && localEmp.workTasks.length > 0;
@@ -1848,7 +1791,11 @@ const AttendanceSystem = () => {
     // 🔔 Listen to orders changes for real-time updates
     const unsubscribeOrders = dbService.onOrdersChange((data) => {
       if (data && Array.isArray(data)) {
-        console.log('📦 Orders listener triggered:', data.length, 'orders');
+        console.log('📦 ORDERS LISTENER TRIGGERED:', {
+          count: data.length,
+          timestamp: new Date().toISOString(),
+          orders: data.map(o => ({ id: o.id, username: o.username, status: o.status }))
+        });
         
         // Get current orders from hook BEFORE updating (for comparison)
         const currentOrders = ordersHook?.orders || [];
@@ -2021,12 +1968,10 @@ const AttendanceSystem = () => {
       try {
         // ✅ CRITICAL: Log data to verify integrity
         const historyCount = employees.reduce((sum, emp) => sum + (emp.completedTasksHistory?.length || 0), 0);
-        const ordersCount = ordersHook?.orders?.length || 0;
         
         console.log('💾 Saving to Firebase:', {
           employees: employees.length,
           historyTasks: historyCount,
-          orders: ordersCount,
           attentions: attentions.length,
           yearlyAttendanceKeys: Object.keys(yearlyAttendance).length
         });
@@ -2076,20 +2021,7 @@ const AttendanceSystem = () => {
     return () => clearTimeout(timeoutId);
   }, [shiftScheduleData, shiftScheduleMonth, shiftScheduleYear, isAppLocked, isCheckingAuth]); // ✅ Removed shiftScheduleWeek from deps
 
-  // Prevent data loss on page close
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      // Force save before closing
-      if (!isSyncingFromFirebase.current) {
-        // Use synchronous method if possible, or show warning
-        e.preventDefault();
-        e.returnValue = 'Data sedang disimpan...';
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
+  // ✅ MOVED: These useEffects moved to AFTER ordersHook initialization (see below)
 
   // DISABLED: Auto-archive completed tasks daily (at midnight)
   // Data sekarang disimpan selamanya, tidak auto-archive
@@ -2136,6 +2068,48 @@ const AttendanceSystem = () => {
   //   
   //   return () => clearInterval(interval);
   // }, []);
+
+  // ✅ Prevent data loss on page close
+  useEffect(() => {
+    const handleBeforeUnload = async (e) => {
+      if (!isSyncingFromFirebase.current && ordersHook?.orders && ordersHook.orders.length > 0) {
+        try {
+          await dbService.saveOrders(ordersHook.orders);
+          console.log('💾 FORCE SAVED ORDERS before close:', ordersHook.orders.length);
+        } catch (error) {
+          console.error('❌ Error force saving orders:', error);
+        }
+      }
+      e.preventDefault();
+      e.returnValue = 'Data sedang disimpan...';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [ordersHook?.orders]);
+
+  // ✅ AUTO-SAVE ORDERS: Periodic backup every 5 minutes
+  useEffect(() => {
+    if (isAppLocked || isCheckingAuth || !ordersHook?.orders || !hasLoadedInitialData.current) {
+      return;
+    }
+    
+    const interval = setInterval(async () => {
+      if (ordersHook.orders.length > 0 && !isSyncingFromFirebase.current) {
+        try {
+          await dbService.saveOrders(ordersHook.orders);
+          console.log('💾 AUTO-SAVE ORDERS (periodic backup):', {
+            count: ordersHook.orders.length,
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error('❌ Auto-save orders error:', error);
+        }
+      }
+    }, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [ordersHook?.orders, isAppLocked, isCheckingAuth]);
 
   // Migration: Move old completed tasks to history (helper function)
   const migrateCompletedTasksToHistory = () => {
@@ -2217,31 +2191,6 @@ const AttendanceSystem = () => {
     return () => clearInterval(interval);
   }, []); // Empty dependency
 
-  const addNotification = (message, type = 'info', id = null) => {
-    const notif = {
-      id: id || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Unique ID
-      message,
-      type,
-      timestamp: new Date().toISOString()
-    };
-    
-    setNotifications(prev => {
-      // Remove duplicates with same message within 5 seconds
-      const recentDuplicate = prev.find(n => 
-        n.message === message && 
-        (Date.now() - new Date(n.timestamp).getTime()) < 5000
-      );
-      if (recentDuplicate) return prev;
-      
-      return [...prev, notif];
-    });
-    
-    // Auto-remove after 10 seconds
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== notif.id));
-    }, 10000);
-  };
-
   // 🔔 Helper function to show browser notification
   const showBrowserNotification = (title, body, icon = '🚀') => {
     if ('Notification' in window && Notification.permission === 'granted') {
@@ -2272,9 +2221,6 @@ const AttendanceSystem = () => {
       console.log('⚠️ Browser notifications not available or permission not granted');
     }
   };
-
-  // ✅ REFACTORED: Initialize orders hook (after addNotification is defined)
-  const ordersHook = useOrders(addNotification, employees, isSyncingFromFirebase);
 
   // ✅ Load orders ONCE after ordersHook is ready AND initial data loaded
   useEffect(() => {
@@ -4029,10 +3975,10 @@ const AttendanceSystem = () => {
               
               {/* Theme Buttons */}
               <div className="flex gap-2">
-              {Object.keys(themes).map(t => {
-                const Icon = themes[t].icon;
+              {Object.keys(APP_THEMES).map(t => {
+                const Icon = APP_THEMES[t].icon;
                 return (
-                  <button key={t} onClick={() => setTheme(t)} className={`p-2 rounded-xl transition-all ${theme === t ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md' : `${currentTheme.badge} hover:bg-slate-200`}`} title={themes[t].name}>
+                  <button key={t} onClick={() => setTheme(t)} className={`p-2 rounded-xl transition-all ${theme === t ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md' : `${currentTheme.badge} hover:bg-slate-200`}`} title={APP_THEMES[t].name}>
                     <Icon size={16} />
                   </button>
                 );
@@ -4159,7 +4105,7 @@ const AttendanceSystem = () => {
             currentYear={currentYear}
             yearlyAttendance={yearlyAttendance}
             statusConfig={statusConfig}
-            monthNames={monthNames}
+            monthNames={MONTH_NAMES}
             calculateMonthlyStats={calculateMonthlyStats}
           />
         )}
@@ -4179,7 +4125,7 @@ const AttendanceSystem = () => {
             hasLoadedInitialData={hasLoadedInitialData}
             yearlyAttendance={yearlyAttendance}
             setYearlyAttendance={setYearlyAttendance}
-            monthNames={monthNames}
+            monthNames={MONTH_NAMES}
           />
         )}
         {activePage === 'admin' && isAdmin && (
@@ -4197,7 +4143,7 @@ const AttendanceSystem = () => {
             handleResetEmployee={handleResetEmployee}
             currentMonth={currentMonth}
             currentYear={currentYear}
-            monthNames={monthNames}
+            monthNames={MONTH_NAMES}
             yearlyAttendance={yearlyAttendance}
             statusConfig={statusConfig}
             handleEditCalendar={handleEditCalendar}
@@ -4781,7 +4727,7 @@ const AttendanceSystem = () => {
               <div>
                 <h3 className={`text-lg font-bold ${currentTheme.text}`}>📅 Edit Kalender</h3>
                 <p className={`text-xs ${currentTheme.subtext}`}>
-                  {editingCalendar.empName} - {editingCalendar.day} {monthNames[editingCalendar.month]} {editingCalendar.year || currentYear}
+                  {editingCalendar.empName} - {editingCalendar.day} {MONTH_NAMES[editingCalendar.month]} {editingCalendar.year || currentYear}
                 </p>
               </div>
             </div>
