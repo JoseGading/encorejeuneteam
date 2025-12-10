@@ -3,7 +3,7 @@ import {
   Package, Plus, CheckCircle, Clock, AlertCircle, Zap, 
   Eye, Trash2, Play, Search, MessageSquare, ShoppingCart 
 } from 'lucide-react';
-import { PLATFORM_CONFIG, PRIORITY_CONFIG, STATUS_CONFIG } from '../../utils/constants';
+import { PLATFORM_CONFIG, PRIORITY_CONFIG, STATUS_CONFIG } from '../../config'; // ✅ Unified import
 
 /**
  * OrderanPage Component
