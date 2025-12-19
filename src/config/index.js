@@ -16,75 +16,75 @@
  * @constant {Array<Object>}
  */
 export const INITIAL_EMPLOYEES = [
-  { 
-    id: 1, 
-    name: 'Desta', 
-    baseSalary: 8000000, 
-    status: 'belum', 
-    lateHours: 0, 
-    checkInTime: null, 
-    cleaningTasks: [], 
-    workTasks: [], 
-    shift: null, 
-    checkedIn: false, 
-    isAdmin: true, 
-    breakTime: null, 
+  {
+    id: 1,
+    name: 'Desta',
+    baseSalary: 8000000,
+    status: 'belum',
+    lateHours: 0,
+    checkInTime: null,
+    cleaningTasks: [],
+    workTasks: [],
+    shift: null,
+    checkedIn: false,
+    isAdmin: true,
+    breakTime: null,
     breakDuration: 0,
-    shiftEndAdjustment: 0, 
-    overtime: false, 
-    shifts: [], 
+    shiftEndAdjustment: 0,
+    overtime: false,
+    shifts: [],
     breakHistory: [],
-    hasBreakToday: false, 
-    shiftEndTime: null, 
-    izinTime: null, 
+    hasBreakToday: false,
+    shiftEndTime: null,
+    izinTime: null,
     izinHistory: [],
     completedTasksHistory: []
   },
-  { 
-    id: 2, 
-    name: 'Ariel', 
-    baseSalary: 7000000, 
-    status: 'belum', 
-    lateHours: 0, 
-    checkInTime: null, 
-    cleaningTasks: [], 
-    workTasks: [], 
-    shift: null, 
-    checkedIn: false, 
-    isAdmin: false, 
-    breakTime: null, 
+  {
+    id: 2,
+    name: 'Ariel',
+    baseSalary: 7000000,
+    status: 'belum',
+    lateHours: 0,
+    checkInTime: null,
+    cleaningTasks: [],
+    workTasks: [],
+    shift: null,
+    checkedIn: false,
+    isAdmin: false,
+    breakTime: null,
     breakDuration: 0,
-    shiftEndAdjustment: 0, 
-    overtime: false, 
-    shifts: [], 
+    shiftEndAdjustment: 0,
+    overtime: false,
+    shifts: [],
     breakHistory: [],
-    hasBreakToday: false, 
-    shiftEndTime: null, 
-    izinTime: null, 
+    hasBreakToday: false,
+    shiftEndTime: null,
+    izinTime: null,
     izinHistory: [],
     completedTasksHistory: []
   },
-  { 
-    id: 3, 
-    name: 'Robert', 
-    baseSalary: 6500000, 
-    status: 'belum', 
-    lateHours: 0, 
-    checkInTime: null, 
-    cleaningTasks: [], 
-    workTasks: [], 
-    shift: null, 
-    checkedIn: false, 
-    isAdmin: false, 
-    breakTime: null, 
+  {
+    id: 3,
+    name: 'Robert',
+    baseSalary: 6500000,
+    status: 'belum',
+    lateHours: 0,
+    checkInTime: null,
+    cleaningTasks: [],
+    workTasks: [],
+    shift: null,
+    checkedIn: false,
+    isAdmin: false,
+    breakTime: null,
     breakDuration: 0,
-    shiftEndAdjustment: 0, 
-    overtime: false, 
-    shifts: [], 
+    shiftEndAdjustment: 0,
+    overtime: false,
+    shifts: [],
     breakHistory: [],
-    hasBreakToday: false, 
-    shiftEndTime: null, 
-    izinTime: null, 
+    hasBreakToday: false,
+    shiftEndTime: null,
+    izinTime: null,
     izinHistory: [],
     completedTasksHistory: []
   }
@@ -329,7 +329,12 @@ export const APP_THEMES = {
     focusBorder: 'focus:border-blue-500/40',
     focusRing: 'focus:ring-blue-500/30',
     ringAccent: 'ring-0',
-    accentFill: 'fill-blue-300'
+    accentFill: 'fill-blue-300',
+    borderColor: 'border-white/10',
+    muted: 'bg-slate-800/50',
+    mutedText: 'text-slate-400',
+    progressTrack: 'bg-white/10',
+    shadow: 'shadow-xl'
   },
   neo: {
     name: 'Neo-Brutal',
@@ -364,7 +369,12 @@ export const APP_THEMES = {
     focusBorder: 'focus:border-black',
     focusRing: 'focus:ring-black',
     ringAccent: 'ring-black',
-    accentFill: 'fill-fuchsia-600'
+    accentFill: 'fill-fuchsia-600',
+    borderColor: 'border-black',
+    muted: 'bg-slate-200',
+    mutedText: 'text-slate-500',
+    progressTrack: 'bg-black/10',
+    shadow: 'shadow-[4px_4px_0_0_rgba(0,0,0,1)]'
   },
   light: {
     name: 'Carbon',
@@ -398,8 +408,12 @@ export const APP_THEMES = {
     primarySoftBorder: 'border-transparent',
     focusBorder: 'focus:border-blue-500/40',
     focusRing: 'focus:ring-blue-500/30',
-    ringAccent: 'ring-0',
-    accentFill: 'fill-blue-300'
+    accentFill: 'fill-blue-300',
+    borderColor: 'border-white/10',
+    muted: 'bg-slate-800/50',
+    mutedText: 'text-slate-400',
+    progressTrack: 'bg-white/10',
+    shadow: 'shadow-xl'
   },
   classic: {
     name: 'Original',
@@ -433,8 +447,12 @@ export const APP_THEMES = {
     primarySoftBorder: 'border-transparent',
     focusBorder: 'focus:border-emerald-500/40',
     focusRing: 'focus:ring-emerald-500/30',
-    ringAccent: 'ring-0',
-    accentFill: 'fill-emerald-300'
+    accentFill: 'fill-emerald-300',
+    borderColor: 'border-white/10',
+    muted: 'bg-slate-800/50',
+    mutedText: 'text-slate-400',
+    progressTrack: 'bg-white/10',
+    shadow: 'shadow-xl'
   },
   ocean: {
     hidden: true,
@@ -469,8 +487,12 @@ export const APP_THEMES = {
     primarySoftBorder: 'border-transparent',
     focusBorder: 'focus:border-blue-500/40',
     focusRing: 'focus:ring-blue-500/30',
-    ringAccent: 'ring-0',
-    accentFill: 'fill-blue-300'
+    accentFill: 'fill-blue-300',
+    borderColor: 'border-white/10',
+    muted: 'bg-slate-800/50',
+    mutedText: 'text-slate-400',
+    progressTrack: 'bg-white/10',
+    shadow: 'shadow-xl'
   },
   sunset: {
     hidden: true,
@@ -505,8 +527,12 @@ export const APP_THEMES = {
     primarySoftBorder: 'border-transparent',
     focusBorder: 'focus:border-blue-500/40',
     focusRing: 'focus:ring-blue-500/30',
-    ringAccent: 'ring-0',
-    accentFill: 'fill-blue-300'
+    accentFill: 'fill-blue-300',
+    borderColor: 'border-white/10',
+    muted: 'bg-slate-800/50',
+    mutedText: 'text-slate-400',
+    progressTrack: 'bg-white/10',
+    shadow: 'shadow-xl'
   }
 };
 
@@ -583,7 +609,7 @@ export default {
   CLOSING_TASKS_MALAM,
   MONTH_NAMES,
   DAY_NAMES,
-  
+
   // Order Constants
   ORDER_STATUS,
   ORDER_PRIORITIES,
@@ -591,16 +617,16 @@ export default {
   PLATFORM_CONFIG,
   PRIORITY_CONFIG,
   STATUS_CONFIG,
-  
+
   // Shift Configuration
   SHIFT_CONFIG,
-  
+
   // Attendance
   ATTENDANCE_STATUS,
-  
+
   // Theme
   APP_THEMES,
-  
+
   // App Config
   APP_CONFIG,
   TIMEOUTS,
