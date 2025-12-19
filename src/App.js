@@ -3866,7 +3866,7 @@ const AttendanceSystem = () => {
   return (
     <div className={`min-h-screen bg-gradient-to-br ${currentTheme.bg} p-6`}>
       <div className="max-w-7xl mx-auto">
-        <nav className={`${currentTheme.nav} border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-2 mb-8`}>
+        <nav className={`${currentTheme.nav} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-2 mb-8`}>
           <div className="flex items-center justify-between">
             <div className="flex gap-2">
               {[
@@ -3885,7 +3885,7 @@ const AttendanceSystem = () => {
             </div>
             <div className="flex gap-3">
               {/* ✅ REALTIME SYNC INDICATOR */}
-              <div className="flex items-center gap-2 px-3 py-2 font-bold border-2 border-black bg-black text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-xs">
+              <div className={`flex items-center gap-2 px-3 py-2 font-bold border-2 ${currentTheme.borderColor} bg-black text-white ${currentTheme.shadow} text-xs`}>
                 <div className={`w-2 h-2 rounded-full bg-white ${isLiveSync ? 'animate-pulse' : ''}`}></div>
                 <span>LIVE</span>
                 {lastSyncTime && (
@@ -3899,7 +3899,7 @@ const AttendanceSystem = () => {
               {!isAdmin && (
                 <button
                   onClick={() => setShowAdminLogin(true)}
-                  className="flex items-center gap-2 px-3 py-2 font-bold border-2 border-black bg-black text-white hover:bg-slate-900 transition-all shadow-[2px_2px_0_0_rgba(0,0,0,1)] text-xs"
+                  className={`flex items-center gap-2 px-3 py-2 font-bold border-2 ${currentTheme.borderColor} bg-black text-white hover:bg-slate-900 transition-all ${currentTheme.shadow} text-xs`}
                   title="Admin Login"
                 >
                   <Lock size={14} />
@@ -3934,12 +3934,12 @@ const AttendanceSystem = () => {
             {notifications.map(notif => (
               <div
                 key={notif.id}
-                className={`${currentTheme.card} border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-4 animate-slide-in-right ${notif.type === 'urgent' ? 'border-fuchsia-600' :
+                className={`${currentTheme.card} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-4 animate-slide-in-right ${notif.type === 'urgent' ? 'border-fuchsia-600' :
                   'border-fuchsia-400'
                   }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="p-2 border-2 border-black bg-fuchsia-100">
+                  <div className={`p-2 border-2 ${currentTheme.borderColor} bg-fuchsia-100`}>
                     <Bell size={16} className="text-fuchsia-700" />
                   </div>
                   <div className="flex-1">
@@ -4118,7 +4118,7 @@ const AttendanceSystem = () => {
         {/* Check-In Modal */}
         {showCheckInModal && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm">
-            <div className={`${currentTheme.card} border-2 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] p-8 max-w-2xl w-full mx-4 relative`}>
+            <div className={`${currentTheme.card} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-8 max-w-2xl w-full mx-4 relative`}>
               {/* Close Button */}
               <button
                 onClick={() => setShowCheckInModal(false)}
@@ -4129,7 +4129,7 @@ const AttendanceSystem = () => {
               </button>
 
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 border-4 border-black bg-fuchsia-600 mb-4">
+                <div className={`inline-flex items-center justify-center w-16 h-16 border-4 ${currentTheme.borderColor} ${currentTheme.accent} mb-4`}>
                   <Clock className="text-white" size={32} />
                 </div>
                 <h2 className={`text-3xl font-bold ${currentTheme.text} mb-2`}>START SHIFT</h2>
@@ -4148,14 +4148,14 @@ const AttendanceSystem = () => {
                     onClick={() => checkInEmployee(emp.id)}
                     disabled={emp.checkedIn || isProcessing}
                     className={`relative p-6 border-4 transition-all font-bold ${emp.checkedIn || isProcessing
-                      ? 'bg-fuchsia-100 border-fuchsia-600 cursor-not-allowed opacity-70'
-                      : 'bg-white border-black hover:border-fuchsia-600 hover:shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 cursor-pointer'
-                      }`}
+                      ? `${currentTheme.accentSoftBg} border-slate-500 cursor-not-allowed opacity-70`
+                      : `${currentTheme.card} ${currentTheme.shadow} hover:-translate-x-1 hover:-translate-y-1 cursor-pointer`
+                      } ${currentTheme.borderColor}`}
                   >
                     <div className="flex flex-col items-center gap-3">
                       <div className={`w-16 h-16 border-4 border-black flex items-center justify-center font-bold text-2xl ${emp.checkedIn
-                        ? 'bg-fuchsia-600 text-white'
-                        : 'bg-fuchsia-600 text-white'
+                        ? `${currentTheme.accent} text-white`
+                        : `${currentTheme.accent} text-white`
                         }`}>
                         <span className="drop-shadow-lg">{emp.checkedIn ? '✓' : emp.name[0]}</span>
                       </div>
@@ -4189,7 +4189,7 @@ const AttendanceSystem = () => {
                 {checkedInEmployees.length > 0 && (
                   <button
                     onClick={() => setShowCheckInModal(false)}
-                    className="flex-1 py-3 border-2 border-black bg-fuchsia-600 text-white font-bold hover:bg-fuchsia-500 transition-all shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0"
+                    className={`flex-1 py-3 border-2 border-black ${currentTheme.accent} text-white font-bold ${currentTheme.accentHover} transition-all ${currentTheme.shadow} hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`}
                   >
                     Mulai Bekerja ({checkedInEmployees.length} orang) →
                   </button>
@@ -4213,10 +4213,10 @@ const AttendanceSystem = () => {
         {/* Pause Modal */}
         {pauseModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className={`${currentTheme.card} border-2 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] p-6 max-w-md w-full mx-4`}>
+            <div className={`${currentTheme.card} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-6 max-w-md w-full mx-4`}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="border-2 border-black bg-fuchsia-100 p-3">
-                  <Pause className="text-fuchsia-700" size={24} />
+                <div className={`border-2 ${currentTheme.borderColor} ${currentTheme.accentSoftBg} p-3`}>
+                  <Pause className={currentTheme.accentText} size={24} />
                 </div>
                 <div>
                   <h3 className={`text-lg font-bold ${currentTheme.text}`}>PAUSE TASK</h3>
@@ -4228,7 +4228,7 @@ const AttendanceSystem = () => {
                 value={pauseReason}
                 onChange={(e) => setPauseReason(e.target.value)}
                 placeholder="Contoh: Istirahat makan siang, Meeting mendadak, dll..."
-                className={`w-full px-4 py-3 border-2 border-black ${currentTheme.input} text-sm resize-none font-bold`}
+                className={`w-full px-4 py-3 border-2 ${currentTheme.borderColor} ${currentTheme.input} text-sm resize-none font-bold`}
                 rows={4}
                 autoFocus
               />
@@ -4245,7 +4245,7 @@ const AttendanceSystem = () => {
                 </button>
                 <button
                   onClick={confirmPause}
-                  className="flex-1 px-4 py-2 border-2 border-black bg-fuchsia-600 text-white font-bold hover:bg-fuchsia-500 transition-all shadow-[4px_4px_0_0_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0"
+                  className={`flex-1 px-4 py-2 border-2 border-black ${currentTheme.accent} text-white font-bold ${currentTheme.accentHover} transition-all ${currentTheme.shadow} hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`}
                 >
                   Konfirmasi Pause
                 </button>
@@ -4257,10 +4257,10 @@ const AttendanceSystem = () => {
         {/* Izin Modal */}
         {izinModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className={`${currentTheme.card} border-2 border-black shadow-[8px_8px_0_0_rgba(0,0,0,1)] p-6 max-w-md w-full mx-4`}>
+            <div className={`${currentTheme.card} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-6 max-w-md w-full mx-4`}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="border-2 border-black bg-fuchsia-100 p-3">
-                  <Bell className="text-fuchsia-700" size={24} />
+                <div className={`border-2 ${currentTheme.borderColor} ${currentTheme.accentSoftBg} p-3`}>
+                  <Bell className={currentTheme.accentText} size={24} />
                 </div>
                 <div>
                   <h3 className={`text-lg font-bold ${currentTheme.text}`}>IZIN</h3>
@@ -4272,7 +4272,7 @@ const AttendanceSystem = () => {
                 value={izinReason}
                 onChange={(e) => setIzinReason(e.target.value)}
                 placeholder="Contoh: Ke dokter, Urusan keluarga, dll..."
-                className={`w-full px-4 py-3 border-2 border-black ${currentTheme.input} text-sm resize-none font-bold`}
+                className={`w-full px-4 py-3 border-2 ${currentTheme.borderColor} ${currentTheme.input} text-sm resize-none font-bold`}
                 rows={4}
                 autoFocus
               />
@@ -4283,14 +4283,14 @@ const AttendanceSystem = () => {
                     setIzinModal(null);
                     setIzinReason('');
                   }}
-                  className={`flex-1 px-4 py-2 border-2 border-black bg-white text-black font-bold hover:bg-black hover:text-white transition-all`}
+                  className={`flex-1 px-4 py-2 border-2 ${currentTheme.borderColor} bg-white text-black font-bold hover:bg-black hover:text-white transition-all`}
                 >
                   Batal
                 </button>
                 <button
                   onClick={confirmIzin}
                   disabled={isProcessing}
-                  className={`flex-1 px-4 py-2 border-2 border-black bg-fuchsia-600 text-white font-bold transition-all shadow-[4px_4px_0_0_rgba(0,0,0,1)] ${isProcessing ? 'opacity-50 cursor-not-allowed' : 'hover:bg-fuchsia-500 hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0'
+                  className={`flex-1 px-4 py-2 border-2 ${currentTheme.borderColor} ${currentTheme.accent} text-white font-bold transition-all ${currentTheme.shadow} ${isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.accentHover} hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`
                     }`}
                 >
                   {isProcessing ? 'Memproses...' : 'Konfirmasi Izin'}
@@ -4303,10 +4303,10 @@ const AttendanceSystem = () => {
         {/* Task Break Modal */}
         {taskBreakModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className={`${currentTheme.card} rounded-2xl shadow-2xl border-2 p-6 max-w-md w-full mx-4`}>
+            <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6 max-w-md w-full mx-4`}>
               <div className="flex items-center gap-3 mb-4">
-                <div className="bg-blue-950/20 p-3 rounded-xl border border-blue-500/15">
-                  <Coffee className="text-blue-300" size={24} />
+                <div className={`${currentTheme.accentSoftBg} p-3 rounded-xl border ${currentTheme.borderColor}`}>
+                  <Coffee className={currentTheme.accentText} size={24} />
                 </div>
                 <div>
                   <h3 className={`text-lg font-bold ${currentTheme.text}`}>Task Break</h3>
@@ -4351,7 +4351,7 @@ const AttendanceSystem = () => {
                 </button>
                 <button
                   onClick={confirmTaskBreak}
-                  className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-700 to-blue-500 text-white hover:from-blue-600 hover:to-blue-500 transition-all text-sm font-medium shadow-md hover:scale-[1.01] active:scale-[0.99]"
+                  className={`flex-1 px-4 py-2 rounded-lg ${currentTheme.accent} text-white ${currentTheme.accentHover} transition-all text-sm font-medium ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`}
                 >
                   Konfirmasi Break
                 </button>
@@ -4386,7 +4386,7 @@ const AttendanceSystem = () => {
             return (
               <div
                 key={reminder.id}
-                className="bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-2xl shadow-2xl border border-blue-400/30 p-4 animate-slide-in-right"
+                className={`${currentTheme.accent} text-white rounded-2xl ${currentTheme.shadow} border ${currentTheme.borderColor} p-4 animate-slide-in-right`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
@@ -4452,7 +4452,7 @@ const AttendanceSystem = () => {
             return (
               <div
                 key={reminder.id}
-                className="bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-2xl shadow-2xl border border-blue-400/30 p-4 animate-slide-in-right"
+                className={`${currentTheme.accent} text-white rounded-2xl ${currentTheme.shadow} border ${currentTheme.borderColor} p-4 animate-slide-in-right`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
@@ -4498,8 +4498,8 @@ const AttendanceSystem = () => {
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm">
           <div className={`${currentTheme.card} rounded-2xl shadow-2xl border-2 border-blue-500/20 p-6 max-w-md w-full mx-4`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="bg-blue-950/20 p-3 rounded-xl border border-blue-500/15">
-                <Trash2 className="text-blue-300" size={24} />
+              <div className={`${currentTheme.accentSoftBg} p-3 rounded-xl border ${currentTheme.borderColor}`}>
+                <Trash2 className={currentTheme.accentText} size={24} />
               </div>
               <div>
                 <h3 className={`text-lg font-bold ${currentTheme.text}`}>⚠️ Clear All Data</h3>
@@ -4560,7 +4560,7 @@ const AttendanceSystem = () => {
               </button>
               <button
                 onClick={confirmClearAllData}
-                className="flex-1 px-4 py-2 rounded-lg bg-blue-950/40 text-blue-200 hover:bg-blue-900/40 transition-all text-sm font-medium shadow-md border border-blue-500/15 hover:scale-[1.01] active:scale-[0.99]"
+                className={`flex-1 px-4 py-2 rounded-lg ${currentTheme.accentSoftBg} ${currentTheme.accentText} ${currentTheme.accentHover} transition-all text-sm font-medium ${currentTheme.shadow} border ${currentTheme.borderColor} hover:scale-[1.01] active:scale-[0.99]`}
               >
                 🗑️ Hapus Semua Data
               </button>
@@ -4572,10 +4572,10 @@ const AttendanceSystem = () => {
       {/* Admin Login Modal */}
       {showAdminLogin && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm">
-          <div className={`${currentTheme.card} rounded-2xl shadow-2xl border-2 border-blue-500/20 p-6 max-w-md w-full mx-4`}>
+          <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6 max-w-md w-full mx-4`}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="bg-blue-950/20 p-3 rounded-xl border border-blue-500/15">
-                <Shield className="text-blue-300" size={24} />
+              <div className={`${currentTheme.accentSoftBg} p-3 rounded-xl border ${currentTheme.borderColor}`}>
+                <Shield className={currentTheme.accentText} size={24} />
               </div>
               <div>
                 <h3 className={`text-lg font-bold ${currentTheme.text}`}>🔐 Admin Login</h3>
