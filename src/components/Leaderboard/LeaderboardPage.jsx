@@ -14,37 +14,37 @@ export const LeaderboardPage = ({
   const now = new Date();
   const today = now.toLocaleDateString('id-ID');
   const todayDate = new Date().toDateString();
-  
+
   // Fix: Create new Date objects to avoid mutation
   const weekStartDate = new Date();
   weekStartDate.setDate(weekStartDate.getDate() - weekStartDate.getDay());
   weekStartDate.setHours(0, 0, 0, 0);
-  
+
   const monthStartDate = new Date();
   monthStartDate.setDate(1);
   monthStartDate.setHours(0, 0, 0, 0);
-  
+
   const empStats = employees.map(e => {
     // RESTORED: Original logic - get from current tasks + history
     let tasksByType = [];
     if (leaderboardTaskType === 'all') {
       tasksByType = [...e.cleaningTasks, ...e.workTasks, ...(e.completedTasksHistory || [])];
     } else if (leaderboardTaskType === 'cleaning') {
-      tasksByType = [...e.cleaningTasks, ...(e.completedTasksHistory || []).filter(t => 
+      tasksByType = [...e.cleaningTasks, ...(e.completedTasksHistory || []).filter(t =>
         !t.taskType || t.taskType === 'cleaning'
       )];
     } else if (leaderboardTaskType === 'work') {
-      tasksByType = [...e.workTasks, ...(e.completedTasksHistory || []).filter(t => 
+      tasksByType = [...e.workTasks, ...(e.completedTasksHistory || []).filter(t =>
         !t.taskType || t.taskType === 'work'
       )];
     }
-    
+
     const all = tasksByType;
-    
+
     // Filter by period
     let filtered = all;
     const todayDate = new Date().toDateString();
-    
+
     if (leaderboardPeriod === 'today') {
       filtered = all.filter(t => {
         if (!t.completed) return false;
@@ -69,7 +69,7 @@ export const LeaderboardPage = ({
     } else if (leaderboardPeriod === 'total') {
       filtered = all.filter(t => t.completed);
     }
-    
+
     const completed = filtered;
     const withDur = completed.filter(t => t.duration);
     let avgMin = 0;
@@ -83,7 +83,7 @@ export const LeaderboardPage = ({
         } else {
           min = parseInt(d.replace('m', ''));
         }
-        
+
         // Subtract pause/break time from total duration
         if (t.pauseHistory && t.pauseHistory.length > 0) {
           const pauseTime = t.pauseHistory.reduce((pauseSum, pause) => {
@@ -95,12 +95,12 @@ export const LeaderboardPage = ({
           }, 0);
           min = Math.max(0, min - pauseTime);
         }
-        
+
         return sum + min;
       }, 0);
       avgMin = Math.round(total / withDur.length);
     }
-    
+
     return {
       name: e.name,
       id: e.id,
@@ -109,27 +109,27 @@ export const LeaderboardPage = ({
       tasks: completed.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
     };
   });
-  
+
   const sorted = empStats.sort((a, b) => b.count - a.count || a.avgMin - b.avgMin);
   const medals = ['🥇', '🥈', '🥉'];
-  
+
   const periodLabels = {
     today: 'Hari Ini',
     week: 'Minggu Ini',
     month: 'Bulan Ini',
     total: 'Total Keseluruhan'
   };
-  
+
   const taskTypeLabels = {
     all: 'Semua Task',
     cleaning: 'Task Kebersihan',
     work: 'Task Kerja'
   };
-  
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-6`}>
+      <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6`}>
         <div className="flex items-center gap-3 mb-4">
           <div className={`${currentTheme.accent} p-3 rounded-xl`}>
             <Trophy className="text-white" size={24} />
@@ -139,7 +139,7 @@ export const LeaderboardPage = ({
             <p className={`text-sm ${currentTheme.subtext}`}>Ranking produktivitas tim</p>
           </div>
         </div>
-        
+
         {/* Filters */}
         <div className="flex flex-wrap gap-3">
           {/* Period Filter */}
@@ -148,28 +148,26 @@ export const LeaderboardPage = ({
               <button
                 key={period}
                 onClick={() => setLeaderboardPeriod(period)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  leaderboardPeriod === period
-                    ? `${currentTheme.accent} ${currentTheme.accentHover} text-white shadow-md hover:scale-[1.01] active:scale-[0.99]`
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${leaderboardPeriod === period
+                    ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
                     : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
-                }`}
+                  }`}
               >
                 {periodLabels[period]}
               </button>
             ))}
           </div>
-          
+
           {/* Task Type Filter */}
           <div className="flex gap-2">
             {['all', 'cleaning', 'work'].map(type => (
               <button
                 key={type}
                 onClick={() => setLeaderboardTaskType(type)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  leaderboardTaskType === type
-                    ? `${currentTheme.accent} ${currentTheme.accentHover} text-white shadow-md hover:scale-[1.01] active:scale-[0.99]`
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${leaderboardTaskType === type
+                    ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
                     : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
-                }`}
+                  }`}
               >
                 {taskTypeLabels[type]}
               </button>
@@ -177,19 +175,18 @@ export const LeaderboardPage = ({
           </div>
         </div>
       </div>
-      
+
       {/* Leaderboard Cards */}
       <div className="space-y-4">
         {sorted.map((emp, idx) => {
           const isExpanded = expandedLeaderboard === emp.id;
           const medal = medals[idx] || `${idx + 1}.`;
-          
+
           return (
-            <div 
-              key={emp.id} 
-              className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-5 transition-all ${
-                isExpanded ? `ring-2 ${currentTheme.ringAccent}` : ''
-              }`}
+            <div
+              key={emp.id}
+              className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-5 transition-all ${isExpanded ? `ring-2 ${currentTheme.ringAccent}` : ''
+                }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 flex-1">
@@ -197,7 +194,7 @@ export const LeaderboardPage = ({
                   <div className="text-3xl font-bold w-12 text-center">
                     {medal}
                   </div>
-                  
+
                   {/* Name & Stats */}
                   <div className="flex-1">
                     <h3 className={`text-xl font-bold ${currentTheme.text}`}>{emp.name}</h3>
@@ -214,7 +211,7 @@ export const LeaderboardPage = ({
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Star Rating */}
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map(star => (
@@ -230,7 +227,7 @@ export const LeaderboardPage = ({
                     ))}
                   </div>
                 </div>
-                
+
                 {/* Toggle Details */}
                 <button
                   onClick={() => setExpandedLeaderboard(isExpanded ? null : emp.id)}
@@ -239,10 +236,10 @@ export const LeaderboardPage = ({
                   <Eye size={18} />
                 </button>
               </div>
-              
+
               {/* Expanded Details */}
               {isExpanded && emp.tasks.length > 0 && (
-                <div className="mt-4 pt-4 border-t-2">
+                <div className={`mt-4 pt-4 border-t-2 ${currentTheme.borderColor}`}>
                   <h4 className={`text-sm font-bold ${currentTheme.text} mb-3`}>
                     Riwayat Task ({emp.tasks.length})
                   </h4>
@@ -283,9 +280,9 @@ export const LeaderboardPage = ({
           );
         })}
       </div>
-      
+
       {sorted.length === 0 && (
-        <div className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-12 text-center`}>
+        <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-12 text-center`}>
           <Trophy size={48} className="mx-auto text-slate-300 mb-4" />
           <p className={`text-lg font-medium ${currentTheme.subtext}`}>Belum ada data</p>
           <p className={`text-sm ${currentTheme.subtext} mt-2`}>
