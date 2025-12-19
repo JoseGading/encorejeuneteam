@@ -32,67 +32,67 @@ export const ShiftSchedulePage = React.memo(({
   endSaveOperation
 }) => {
   const karyawan = useMemo(() => employees.map(e => e.name), [employees]);
-  const daysInMonth = useMemo(() => 
+  const daysInMonth = useMemo(() =>
     new Date(shiftScheduleYear, shiftScheduleMonth + 1, 0).getDate(),
     [shiftScheduleYear, shiftScheduleMonth]
   );
-  
+
   // Calculate shift schedule (define first) - WEEKLY ROTATION FOR BETTER SLEEP
   const calculateShiftSchedule = React.useCallback((scheduleToCalculate) => {
     const stats = {};
-    
+
     karyawan.forEach(k => {
-      stats[k] = { 
-        libur: 0, 
-        pagi: 0, 
-        malam: 0, 
-        double: 0, 
+      stats[k] = {
+        libur: 0,
+        pagi: 0,
+        malam: 0,
+        double: 0,
         weeksAsPagi: 0,    // Track weeks doing morning shift
         weeksAsMalam: 0,   // Track weeks doing night shift
         weeksAsDouble: 0   // Track weeks doing double shift
       };
     });
-    
+
     // Group days by week (7 days per week)
     const weeks = [];
     for (let i = 0; i < scheduleToCalculate.length; i += 7) {
       weeks.push(scheduleToCalculate.slice(i, i + 7));
     }
-    
+
     // Assign roles for each week
     const weeklyAssignments = [];
-    
+
     weeks.forEach((week, weekIdx) => {
       // Count how many days each person has libur this week
       const liburDaysCount = {};
       karyawan.forEach(k => liburDaysCount[k] = 0);
-      
+
       week.forEach(day => {
         if (day.libur !== 'Tidak Ada') {
           liburDaysCount[day.libur]++;
         }
       });
-      
+
       // Only exclude if person has libur for MORE THAN HALF the week (4+ days)
       const availableForWeek = karyawan.filter(k => liburDaysCount[k] < 4);
-      
+
       // Determine roles based on available people
       let roles = {};
-      
+
       if (availableForWeek.length === 3) {
         // 3 people: WEEKLY ROTATION - change solo person every week
         // Always use 2P1M pattern for consistent rotation
-        
+
         // Find who has done FEWEST solo weeks (combining both pagi and malam solo)
         const soloStats = {};
         availableForWeek.forEach(p => {
           // Count total solo weeks (both morning and night)
           soloStats[p] = stats[p].weeksAsMalam + stats[p].weeksAsPagi;
         });
-        
+
         let minSoloWeeks = Math.min(...availableForWeek.map(p => soloStats[p]));
         let candidatesForSolo = availableForWeek.filter(p => soloStats[p] === minSoloWeeks);
-        
+
         // If multiple candidates, use week-based round-robin
         let soloPerson;
         if (candidatesForSolo.length > 1) {
@@ -104,17 +104,17 @@ export const ShiftSchedulePage = React.memo(({
         } else {
           soloPerson = candidatesForSolo[0];
         }
-        
+
         // Alternate between solo malam and solo pagi each week
         const pattern = weekIdx % 2 === 0 ? '2P1M' : '1P2M';
-        
+
         if (pattern === '2P1M') {
           // Solo person gets malam, others get pagi
           roles[soloPerson] = 'malam';
           availableForWeek.filter(p => p !== soloPerson).forEach(p => {
             roles[p] = 'pagi';
           });
-          
+
           stats[soloPerson].weeksAsMalam++;
           availableForWeek.filter(p => p !== soloPerson).forEach(p => {
             stats[p].weeksAsPagi++;
@@ -125,13 +125,13 @@ export const ShiftSchedulePage = React.memo(({
           availableForWeek.filter(p => p !== soloPerson).forEach(p => {
             roles[p] = 'malam';
           });
-          
+
           stats[soloPerson].weeksAsPagi++;
           availableForWeek.filter(p => p !== soloPerson).forEach(p => {
             stats[p].weeksAsMalam++;
           });
         }
-        
+
       } else if (availableForWeek.length === 2) {
         // 2 people: One does double shift for the week
         const sortedByDouble = [...availableForWeek].sort((a, b) => {
@@ -142,43 +142,43 @@ export const ShiftSchedulePage = React.memo(({
           const bTotal = stats[b].weeksAsPagi + stats[b].weeksAsMalam;
           return aTotal - bTotal;
         });
-        
+
         roles[sortedByDouble[0]] = 'double';  // Does both shifts
         roles[sortedByDouble[1]] = 'pagi';    // Only morning
-        
+
         stats[sortedByDouble[0]].weeksAsDouble++;
         stats[sortedByDouble[1]].weeksAsPagi++;
-        
+
       } else if (availableForWeek.length === 1) {
         // 1 person: Must do everything
         roles[availableForWeek[0]] = 'double';
         stats[availableForWeek[0]].weeksAsDouble++;
       }
-      
+
       weeklyAssignments.push(roles);
     });
-    
+
     // Apply weekly assignments to each day
     const newSchedule = scheduleToCalculate.map((row, idx) => {
       const weekIdx = Math.floor(idx / 7);
       const roles = weeklyAssignments[weekIdx] || {};
-      
+
       const libur = row.libur;
       const available = karyawan.filter(k => k !== libur || libur === 'Tidak Ada');
-      
+
       if (libur !== 'Tidak Ada') {
         stats[libur].libur++;
       }
-      
+
       const updatedRow = { ...row };
-      
+
       // Apply weekly role assignments
       const pagiPeople = [];
       const malamPeople = [];
-      
+
       available.forEach(person => {
         const role = roles[person];
-        
+
         if (role === 'pagi') {
           pagiPeople.push(person);
         } else if (role === 'malam') {
@@ -188,29 +188,29 @@ export const ShiftSchedulePage = React.memo(({
           malamPeople.push(person);
         }
       });
-      
+
       updatedRow.pagi = pagiPeople;
       updatedRow.malam = malamPeople;
-      
+
       updatedRow.pagi.forEach(k => stats[k].pagi++);
       updatedRow.malam.forEach(k => stats[k].malam++);
-      
+
       return updatedRow;
     });
-    
+
     setShiftScheduleData(newSchedule);
   }, [karyawan, setShiftScheduleData]);
-  
+
   // Generate schedule function (uses calculateShiftSchedule)
   const generateSchedule = React.useCallback(() => {
     const startDate = new Date(shiftScheduleYear, shiftScheduleMonth, 1);
     const newSchedule = [];
     const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    
+
     for (let i = 0; i < daysInMonth; i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
-      
+
       let liburPerson = 'Tidak Ada';
       karyawan.forEach(name => {
         const attendanceData = yearlyAttendance[name]?.[shiftScheduleMonth]?.[i + 1];
@@ -218,7 +218,7 @@ export const ShiftSchedulePage = React.memo(({
           liburPerson = name;
         }
       });
-      
+
       newSchedule.push({
         day: i + 1,
         date: currentDate.toLocaleDateString('id-ID'),
@@ -229,23 +229,23 @@ export const ShiftSchedulePage = React.memo(({
         keterangan: ''
       });
     }
-    
+
     calculateShiftSchedule(newSchedule);
   }, [shiftScheduleYear, shiftScheduleMonth, daysInMonth, karyawan, yearlyAttendance, calculateShiftSchedule]);
-  
+
   // Auto-generate schedule when month changes or data is empty
   React.useEffect(() => {
     if (shiftScheduleData.length === 0 && hasLoadedInitialData.current) {
       const monthKey = `${shiftScheduleYear}-${shiftScheduleMonth}`;
       const lastGenerated = sessionStorage.getItem('lastGeneratedMonth');
-      
+
       if (lastGenerated !== monthKey) {
         sessionStorage.setItem('lastGeneratedMonth', monthKey);
         setTimeout(() => generateSchedule(), 100);
       }
     }
   }, [shiftScheduleData.length, shiftScheduleMonth, shiftScheduleYear, hasLoadedInitialData, generateSchedule]);
-  
+
   // Restore week position after Firebase update
   React.useEffect(() => {
     if (shiftScheduleData.length > 0 && currentWeekRef.current !== shiftScheduleWeek) {
@@ -253,12 +253,12 @@ export const ShiftSchedulePage = React.memo(({
       setShiftScheduleWeek(currentWeekRef.current);
     }
   }, [shiftScheduleData, currentWeekRef, shiftScheduleWeek, setShiftScheduleWeek]);
-  
+
   // ✅ PERSIST: Validate saved week is within bounds
   React.useEffect(() => {
     const daysPerPage = 7;
     const totalPages = Math.ceil(daysInMonth / daysPerPage);
-    
+
     // If saved week is out of bounds, reset to last valid week
     if (shiftScheduleWeek >= totalPages && totalPages > 0) {
       const lastWeek = totalPages - 1;
@@ -268,7 +268,7 @@ export const ShiftSchedulePage = React.memo(({
       localStorage.setItem('shiftScheduleWeek', lastWeek.toString());
     }
   }, [daysInMonth, shiftScheduleWeek, setShiftScheduleWeek, currentWeekRef]);
-  
+
   const currentWeekData = useMemo(() => {
     if (shiftScheduleData.length === 0) return [];
     const daysPerPage = 7;
@@ -276,38 +276,38 @@ export const ShiftSchedulePage = React.memo(({
     const endIdx = Math.min(startIdx + daysPerPage, daysInMonth);
     return shiftScheduleData.slice(startIdx, endIdx);
   }, [shiftScheduleData, shiftScheduleWeek, daysInMonth]);
-  
+
   // Pagination
   const daysPerPage = 7;
   const totalPages = Math.ceil(daysInMonth / daysPerPage);
   const startIdx = shiftScheduleWeek * daysPerPage;
   const endIdx = Math.min(startIdx + daysPerPage, daysInMonth);
-  
-  const liburCount = React.useMemo(() => 
+
+  const liburCount = React.useMemo(() =>
     shiftScheduleData.filter(d => d.libur !== 'Tidak Ada').length,
     [shiftScheduleData]
   );
-  
+
   // Update libur and handle shift replacement
   const updateLibur = React.useCallback((index, value) => {
     if (!shiftScheduleData[index]) return;
-    
+
     const newSchedule = [...shiftScheduleData];
     const oldLibur = newSchedule[index].libur;
     const day = newSchedule[index].day;
-    
+
     // Update libur
     newSchedule[index].libur = value;
-    
+
     // If removing libur (setting to "Tidak Ada"), recalculate shifts for this day
     if (value === 'Tidak Ada' && oldLibur !== 'Tidak Ada') {
       // Get week index to determine pattern
       const weekIdx = Math.floor(index / 7);
       const pattern = weekIdx % 2 === 0 ? '2P1M' : '1P2M';
-      
+
       // Get all available people (no one on libur now)
       const available = karyawan.filter(k => k !== value || value === 'Tidak Ada');
-      
+
       // Recalculate based on pattern
       if (pattern === '2P1M') {
         // 2 Pagi, 1 Malam - need to determine who was solo malam
@@ -326,11 +326,11 @@ export const ShiftSchedulePage = React.memo(({
     else if (value !== 'Tidak Ada' && value !== oldLibur) {
       const wasInPagi = newSchedule[index].pagi.includes(value);
       const wasInMalam = newSchedule[index].malam.includes(value);
-      
+
       // Remove person from shifts
       if (wasInPagi) newSchedule[index].pagi = newSchedule[index].pagi.filter(p => p !== value);
       if (wasInMalam) newSchedule[index].malam = newSchedule[index].malam.filter(m => m !== value);
-      
+
       // Move someone from other shift if current shift becomes empty
       if (wasInMalam && newSchedule[index].malam.length === 0 && newSchedule[index].pagi.length > 0) {
         const replacement = newSchedule[index].pagi[0];
@@ -342,7 +342,7 @@ export const ShiftSchedulePage = React.memo(({
         newSchedule[index].pagi.push(replacement);
       }
     }
-    
+
     // ✅ FIX BUG #1: Update attendance calendar AND save to Firebase immediately
     let updatedYearlyAttendance;
     setYearlyAttendance(prev => {
@@ -350,7 +350,7 @@ export const ShiftSchedulePage = React.memo(({
       karyawan.forEach(name => {
         if (!updated[name]) updated[name] = {};
         if (!updated[name][shiftScheduleMonth]) updated[name][shiftScheduleMonth] = {};
-        
+
         // ✅ FIX: Set libur status for the selected person
         if (value === name && value !== 'Tidak Ada') {
           updated[name][shiftScheduleMonth][day] = {
@@ -358,7 +358,7 @@ export const ShiftSchedulePage = React.memo(({
             status: 'libur',
             lateHours: 0
           };
-        } 
+        }
         // ✅ FIX: Clear libur status when "Tidak Ada" selected OR when another person selected
         else if (oldLibur === name) {
           // Person who previously had libur should be reset to 'belum'
@@ -372,7 +372,7 @@ export const ShiftSchedulePage = React.memo(({
       updatedYearlyAttendance = updated; // ✅ CRITICAL: Capture updated value!
       return updated;
     });
-    
+
     // ✅ FIX BUG #1: Save BOTH shift schedule AND yearly attendance to Firebase
     // CRITICAL: Use updatedYearlyAttendance (the new value), not yearlyAttendance (old state)
     if (startSaveOperation) startSaveOperation('Shift: Set Libur');
@@ -385,9 +385,9 @@ export const ShiftSchedulePage = React.memo(({
       dbService.saveYearlyAttendance(updatedYearlyAttendance) // ✅ Use captured value!
     ])
       .then(() => {
-        console.log('✅ Libur status saved to Firebase:', { 
-          person: value, 
-          day, 
+        console.log('✅ Libur status saved to Firebase:', {
+          person: value,
+          day,
           month: shiftScheduleMonth,
           status: value !== 'Tidak Ada' ? 'libur' : 'cleared'
         });
@@ -401,10 +401,10 @@ export const ShiftSchedulePage = React.memo(({
   return (
     <div className="space-y-6 relative z-10">
       {/* Header with Navigation */}
-      <div className={`${currentTheme.card} rounded-2xl shadow-lg border-2 p-6 relative z-20`}>
+      <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6 relative z-20`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <div className="bg-gradient-to-br from-blue-700 to-blue-500 p-3 rounded-xl shadow-md">
+            <div className={`bg-gradient-to-br from-blue-700 to-blue-500 p-3 rounded-xl ${currentTheme.shadow}`}>
               <CalendarDays className="text-white" size={24} />
             </div>
             <div>
@@ -414,7 +414,7 @@ export const ShiftSchedulePage = React.memo(({
               </p>
             </div>
           </div>
-          
+
           {/* Month/Year Navigation */}
           <div className="flex items-center gap-3 relative z-30">
             <div className="flex items-center gap-2">
@@ -470,7 +470,7 @@ export const ShiftSchedulePage = React.memo(({
             </div>
           </div>
         </div>
-        
+
         {/* Week Pagination */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 relative z-30">
@@ -515,7 +515,7 @@ export const ShiftSchedulePage = React.memo(({
           </div>
         </div>
       </div>
-      
+
       {/* Schedule Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {currentWeekData.length === 0 ? (
@@ -524,119 +524,114 @@ export const ShiftSchedulePage = React.memo(({
           </div>
         ) : (
           currentWeekData.map((row, idx) => {
-          const actualIdx = startIdx + idx;
-          const isDoubleShift = row.pagi.some(p => row.malam.includes(p));
-          const doubleShiftPerson = isDoubleShift ? row.pagi.find(p => row.malam.includes(p)) : null;
-          
-          return (
-            <div 
-              key={actualIdx} 
-              className={`${currentTheme.card} rounded-xl shadow-md border-2 p-4 transition-all hover:shadow-lg ${
-                isDoubleShift ? 'border-blue-400/40 bg-blue-950/15' : ''
-              }`}
-            >
-              {/* Date Header */}
-              <div className="flex items-center justify-between mb-3 pb-3 border-b-2 border-white/10">
-                <div>
-                  <div className={`text-2xl font-bold ${currentTheme.text}`}>{row.day}</div>
-                  <div className={`text-xs ${currentTheme.subtext}`}>
-                    {row.dayName}
+            const actualIdx = startIdx + idx;
+            const isDoubleShift = row.pagi.some(p => row.malam.includes(p));
+            const doubleShiftPerson = isDoubleShift ? row.pagi.find(p => row.malam.includes(p)) : null;
+
+            return (
+              <div
+                key={actualIdx}
+                className={`${currentTheme.card} rounded-xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-4 transition-all hover:shadow-lg ${isDoubleShift ? 'border-blue-400/40 bg-blue-950/15' : ''
+                  }`}
+              >
+                {/* Date Header */}
+                <div className={`flex items-center justify-between mb-3 pb-3 border-b-2 ${currentTheme.borderColor}`}>
+                  <div>
+                    <div className={`text-2xl font-bold ${currentTheme.text}`}>{row.day}</div>
+                    <div className={`text-xs ${currentTheme.subtext}`}>
+                      {row.dayName}
+                    </div>
+                  </div>
+                  <div className={`text-xs ${currentTheme.subtext}`}>{row.date}</div>
+                </div>
+
+                {/* Libur Selector - Button Group */}
+                <div className="mb-3">
+                  <label className={`text-xs font-semibold ${currentTheme.subtext} mb-1 block`}>
+                    Libur:
+                  </label>
+                  <div className="flex flex-wrap gap-1">
+                    <button
+                      type="button"
+                      onClick={() => updateLibur(actualIdx, 'Tidak Ada')}
+                      className={`px-2 py-1 text-xs rounded-md transition-all ${row.libur === 'Tidak Ada'
+                          ? 'bg-blue-700 text-white font-bold'
+                          : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
+                        }`}
+                    >
+                      Tidak Ada
+                    </button>
+                    {karyawan.map(k => (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => updateLibur(actualIdx, k)}
+                        className={`px-2 py-1 text-xs rounded-md transition-all ${row.libur === k
+                            ? 'bg-blue-600 text-white font-bold'
+                            : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
+                          }`}
+                      >
+                        {k}
+                      </button>
+                    ))}
                   </div>
                 </div>
-                <div className={`text-xs ${currentTheme.subtext}`}>{row.date}</div>
-              </div>
-              
-              {/* Libur Selector - Button Group */}
-              <div className="mb-3">
-                <label className={`text-xs font-semibold ${currentTheme.subtext} mb-1 block`}>
-                  Libur:
-                </label>
-                <div className="flex flex-wrap gap-1">
-                  <button
-                    type="button"
-                    onClick={() => updateLibur(actualIdx, 'Tidak Ada')}
-                    className={`px-2 py-1 text-xs rounded-md transition-all ${
-                      row.libur === 'Tidak Ada'
-                        ? 'bg-blue-700 text-white font-bold'
-                        : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
-                    }`}
-                  >
-                    Tidak Ada
-                  </button>
-                  {karyawan.map(k => (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => updateLibur(actualIdx, k)}
-                      className={`px-2 py-1 text-xs rounded-md transition-all ${
-                        row.libur === k
-                          ? 'bg-blue-600 text-white font-bold'
-                          : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
-                      }`}
-                    >
-                      {k}
-                    </button>
-                  ))}
+
+                {/* Shift Pagi */}
+                <div className="mb-3">
+                  <label className={`text-xs font-semibold ${currentTheme.subtext} mb-1.5 block`}>
+                    ☀️ Shift Pagi:
+                  </label>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {row.pagi.length > 0 ? (
+                      row.pagi.map((k, i) => (
+                        <span
+                          key={i}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${doubleShiftPerson === k
+                              ? `bg-blue-700 text-white ${currentTheme.shadow}`
+                              : 'bg-blue-600 text-white'
+                            }`}
+                        >
+                          {k}
+                          {doubleShiftPerson === k && <span className="ml-1">⚡</span>}
+                        </span>
+                      ))
+                    ) : (
+                      <span className={`text-xs ${currentTheme.subtext} italic`}>-</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Shift Malam */}
+                <div>
+                  <label className={`text-xs font-semibold ${currentTheme.subtext} mb-1.5 block`}>
+                    🌙 Shift Malam:
+                  </label>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {row.malam.length > 0 ? (
+                      row.malam.map((k, i) => (
+                        <span
+                          key={i}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${doubleShiftPerson === k
+                              ? `bg-blue-700 text-white ${currentTheme.shadow}`
+                              : 'bg-blue-600 text-white'
+                            }`}
+                        >
+                          {k}
+                          {doubleShiftPerson === k && <span className="ml-1">⚡</span>}
+                        </span>
+                      ))
+                    ) : (
+                      <span className={`text-xs ${currentTheme.subtext} italic`}>-</span>
+                    )}
+                  </div>
                 </div>
               </div>
-              
-              {/* Shift Pagi */}
-              <div className="mb-3">
-                <label className={`text-xs font-semibold ${currentTheme.subtext} mb-1.5 block`}>
-                  ☀️ Shift Pagi:
-                </label>
-                <div className="flex gap-1.5 flex-wrap">
-                  {row.pagi.length > 0 ? (
-                    row.pagi.map((k, i) => (
-                      <span 
-                        key={i} 
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          doubleShiftPerson === k
-                            ? 'bg-blue-700 text-white shadow-md'
-                            : 'bg-blue-600 text-white'
-                        }`}
-                      >
-                        {k}
-                        {doubleShiftPerson === k && <span className="ml-1">⚡</span>}
-                      </span>
-                    ))
-                  ) : (
-                    <span className={`text-xs ${currentTheme.subtext} italic`}>-</span>
-                  )}
-                </div>
-              </div>
-              
-              {/* Shift Malam */}
-              <div>
-                <label className={`text-xs font-semibold ${currentTheme.subtext} mb-1.5 block`}>
-                  🌙 Shift Malam:
-                </label>
-                <div className="flex gap-1.5 flex-wrap">
-                  {row.malam.length > 0 ? (
-                    row.malam.map((k, i) => (
-                      <span 
-                        key={i} 
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                          doubleShiftPerson === k
-                            ? 'bg-blue-700 text-white shadow-md'
-                            : 'bg-blue-600 text-white'
-                        }`}
-                      >
-                        {k}
-                        {doubleShiftPerson === k && <span className="ml-1">⚡</span>}
-                      </span>
-                    ))
-                  ) : (
-                    <span className={`text-xs ${currentTheme.subtext} italic`}>-</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })
+            );
+          })
         )}
       </div>
-      
+
     </div>
   );
 });
