@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { 
-  Calendar, Users, Sun, Moon, TrendingUp, CheckCircle, Clock, 
-  AlertCircle, Sparkles, Zap, GripVertical, Trash2, Play, Square, 
-  Pause, Coffee, Plus, Bell 
+import {
+  Calendar, Users, Sun, Moon, TrendingUp, CheckCircle, Clock,
+  AlertCircle, Sparkles, Zap, GripVertical, Trash2, Play, Square,
+  Pause, Coffee, Plus, Bell
 } from 'lucide-react';
 
 /**
@@ -90,16 +90,16 @@ export const DashboardPage = React.memo(({
     // Desta (admin) dapat melihat semua tim, tim lain hanya lihat yang checked in
     const destaUser = employees.find(e => e.isAdmin);
     const isDestaView = selectedEmployee === 'all' || selectedEmployee === destaUser?.name;
-    
-    const filteredEmployees = selectedEmployee === 'all' 
+
+    const filteredEmployees = selectedEmployee === 'all'
       ? (destaUser ? employees : employees.filter(e => e.checkedIn))
       : employees.filter(emp => emp.name === selectedEmployee);
 
     return (
       <div className="space-y-8">
         {AttentionSection}
-        
-        <div className={`${currentTheme.card} border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6`}>
+
+        <div className={`${currentTheme.card} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-6`}>
           <div className="flex items-center justify-between">
             <div>
               <h1 className={`text-2xl font-bold ${currentTheme.text}`}>ABSENSI ENCOREJEUNE</h1>
@@ -132,16 +132,15 @@ export const DashboardPage = React.memo(({
                 </div>
               )}
             </div>
-            
+
             {/* Employee Filter Buttons */}
             <div className="flex gap-2">
               <button
                 onClick={() => setSelectedEmployee('all')}
-                className={`px-4 py-2 border-2 font-bold transition-all text-sm ${
-                  selectedEmployee === 'all'
-                    ? `${currentTheme.accent} text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`
-                    : `${currentTheme.badge} hover:bg-black hover:text-white`
-                } ${selectedEmployee === 'all' ? 'border-black' : 'border-transparent'}`}
+                className={`px-4 py-2 border-2 font-bold transition-all text-sm ${selectedEmployee === 'all'
+                  ? `${currentTheme.accent} text-white ${currentTheme.shadow} hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`
+                  : `${currentTheme.badge} hover:bg-black hover:text-white`
+                  } ${selectedEmployee === 'all' ? `${currentTheme.borderColor}` : 'border-transparent'}`}
               >
                 Semua
               </button>
@@ -149,11 +148,10 @@ export const DashboardPage = React.memo(({
                 <button
                   key={emp.id}
                   onClick={() => setSelectedEmployee(emp.name)}
-                  className={`px-4 py-2 border-2 font-bold transition-all text-sm ${
-                    selectedEmployee === emp.name
-                      ? `${currentTheme.accent} text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`
-                      : `${currentTheme.badge} hover:bg-black hover:text-white`
-                  } ${selectedEmployee === emp.name ? 'border-black' : 'border-transparent'}`}
+                  className={`px-4 py-2 border-2 font-bold transition-all text-sm ${selectedEmployee === emp.name
+                    ? `${currentTheme.accent} text-white ${currentTheme.shadow} hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`
+                    : `${currentTheme.badge} hover:bg-black hover:text-white`
+                    } ${selectedEmployee === emp.name ? `${currentTheme.borderColor}` : 'border-transparent'}`}
                 >
                   {emp.name}
                 </button>
@@ -163,9 +161,9 @@ export const DashboardPage = React.memo(({
         </div>
 
         {/* Real-time Productivity Dashboard */}
-        <div className={`${currentTheme.card} border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6`}>
+        <div className={`${currentTheme.card} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-6`}>
           <div className="flex items-center gap-3 mb-5">
-            <div className={`${currentTheme.accent} border-2 border-black p-2.5`}>
+            <div className={`${currentTheme.accent} border-2 ${currentTheme.borderColor} p-2.5`}>
               <TrendingUp className="text-white" size={20} />
             </div>
             <div>
@@ -173,7 +171,7 @@ export const DashboardPage = React.memo(({
               <p className={`text-xs ${currentTheme.subtext}`}>Real-time task completion tracking</p>
             </div>
           </div>
-          
+
           <div className={`grid ${filteredEmployees.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : filteredEmployees.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-4`}>
             {filteredEmployees.map(emp => {
               const allTasks = [...emp.cleaningTasks, ...emp.workTasks];
@@ -181,11 +179,11 @@ export const DashboardPage = React.memo(({
               const inProgress = allTasks.filter(t => t.startTime && !t.endTime).length;
               const pending = allTasks.filter(t => !t.startTime && !t.completed).length;
               const completionRate = allTasks.length > 0 ? Math.round((completed / allTasks.length) * 100) : 0;
-              
+
               return (
-                <div key={emp.id} className={`${currentTheme.badge} border-2 border-black p-4`}>
+                <div key={emp.id} className={`${currentTheme.badge} border-2 ${currentTheme.borderColor} p-4`}>
                   <div className="flex items-center gap-2 mb-3">
-                    <div className={`w-8 h-8 ${currentTheme.accent} border-2 border-black flex items-center justify-center font-bold text-white text-sm`}>
+                    <div className={`w-8 h-8 ${currentTheme.accent} border-2 ${currentTheme.borderColor} flex items-center justify-center font-bold text-white text-sm`}>
                       {emp.name[0]}
                     </div>
                     <div className="flex-1">
@@ -193,7 +191,7 @@ export const DashboardPage = React.memo(({
                       <p className={`text-xs ${currentTheme.subtext}`}>{completionRate}% selesai</p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className={`${currentTheme.accentText} flex items-center gap-1`}>
@@ -214,9 +212,9 @@ export const DashboardPage = React.memo(({
                       <span className={`font-semibold ${currentTheme.accentText}`}>{pending}</span>
                     </div>
                   </div>
-                  
-                  <div className="mt-3 bg-white/10 border-2 border-black h-2 overflow-hidden">
-                    <div 
+
+                  <div className={`mt-3 ${currentTheme.progressTrack} border-2 ${currentTheme.borderColor} h-2 overflow-hidden`}>
+                    <div
                       className={`${currentTheme.accent} h-full transition-all duration-500`}
                       style={{ width: `${completionRate}%` }}
                     />
@@ -228,11 +226,11 @@ export const DashboardPage = React.memo(({
         </div>
 
         {filteredEmployees.map(emp => (
-          <div key={emp.id} className={`${currentTheme.card} border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden`}>
+          <div key={emp.id} className={`${currentTheme.card} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} overflow-hidden`}>
             <div className={`bg-gradient-to-r ${currentTheme.header} p-5`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 border-4 border-black bg-white flex items-center justify-center font-bold text-slate-700 text-lg">
+                  <div className={`w-12 h-12 border-4 ${currentTheme.borderColor} ${currentTheme.card} flex items-center justify-center font-bold ${currentTheme.text} text-lg`}>
                     {emp.name[0]}
                   </div>
                   <div>
@@ -244,16 +242,15 @@ export const DashboardPage = React.memo(({
                         </span>
                       )}
                       {emp.shift && (
-                        <span className={`px-2 py-0.5 border-2 border-black text-xs font-bold ${
-                          emp.shift === 'pagi' 
-                            ? 'bg-yellow-200 text-black'
-                            : 'bg-cyan-200 text-black'
-                        }`}>
+                        <span className={`px-2 py-0.5 border-2 ${currentTheme.borderColor} text-xs font-bold ${emp.shift === 'pagi'
+                          ? 'bg-yellow-200 text-black'
+                          : 'bg-cyan-200 text-black'
+                          }`}>
                           {emp.shift === 'pagi' ? '☀️ Pagi' : '🌙 Malam'}
                         </span>
                       )}
                       {emp.overtime && (
-                        <span className={`px-2 py-0.5 border-2 border-black text-xs font-bold bg-fuchsia-100 text-fuchsia-800 animate-pulse`}>
+                        <span className={`px-2 py-0.5 border-2 ${currentTheme.borderColor} text-xs font-bold bg-fuchsia-100 text-fuchsia-800 animate-pulse`}>
                           ⚡ LEMBUR
                         </span>
                       )}
@@ -268,7 +265,7 @@ export const DashboardPage = React.memo(({
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {['hadir', 'telat', 'lembur', 'izin', 'libur', 'sakit', 'alpha'].map(s => (
-                    <div key={s} className={`px-3 py-1.5 border-2 border-black text-xs font-bold ${emp.status === s ? 'bg-fuchsia-600 text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'bg-white text-black'} cursor-not-allowed opacity-70`}>
+                    <div key={s} className={`px-3 py-1.5 border-2 ${currentTheme.borderColor} text-xs font-bold ${emp.status === s ? 'bg-fuchsia-600 text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : `${currentTheme.badge} ${currentTheme.subtext}`} cursor-not-allowed opacity-70`}>
                       {statusConfig?.[s]?.label || s}
                     </div>
                   ))}
@@ -278,11 +275,11 @@ export const DashboardPage = React.memo(({
                 <div className={`mt-3 flex items-center gap-2 ${currentTheme.accentSoftBg} border ${currentTheme.accentSoftBorder} rounded-lg p-2.5`}>
                   <AlertCircle className={currentTheme.accentTextStrong} size={16} />
                   <span className={`text-xs ${currentTheme.accentTextStrong}`}>Terlambat</span>
-                  <input type="number" min="0" max="12" value={emp.lateHours} onChange={(e) => updateLateHours(emp.id, parseInt(e.target.value) || 0)} className="w-16 px-2 py-1 rounded-md bg-white/10 border border-white/20 text-white text-xs text-center focus:outline-none focus:border-white/40" />
+                  <input type="number" min="0" max="12" value={emp.lateHours} onChange={(e) => updateLateHours(emp.id, parseInt(e.target.value) || 0)} className={`w-16 px-2 py-1 rounded-md ${currentTheme.input} border ${currentTheme.borderColor} text-xs text-center focus:outline-none ${currentTheme.focusBorder}`} />
                   <span className={`text-xs ${currentTheme.accentTextStrong}`}>jam</span>
                 </div>
               )}
-              
+
               {/* Tombol Istirahat, Izin & End Shift */}
               {emp.checkedIn && (
                 <>
@@ -291,9 +288,8 @@ export const DashboardPage = React.memo(({
                       <button
                         onClick={() => startBreak(emp.id)}
                         disabled={isProcessing}
-                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primarySoftBg} border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 ${currentTheme.primarySoftText} text-xs font-medium transition-all ${
-                          isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primarySoftHover} hover:scale-[1.01] active:scale-[0.99]`
-                        }`}
+                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primarySoftBg} border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 ${currentTheme.primarySoftText} text-xs font-medium transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primarySoftHover} hover:scale-[1.01] active:scale-[0.99]`
+                          }`}
                       >
                         <Coffee size={16} />
                         Istirahat
@@ -302,9 +298,8 @@ export const DashboardPage = React.memo(({
                       <button
                         onClick={() => endBreak(emp.id)}
                         disabled={isProcessing}
-                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primary} text-white border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 text-xs font-medium transition-all ${
-                          isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primaryHover} hover:scale-[1.01] active:scale-[0.99]`
-                        }`}
+                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primary} text-white border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 text-xs font-medium transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primaryHover} hover:scale-[1.01] active:scale-[0.99]`
+                          }`}
                       >
                         <CheckCircle size={16} />
                         Selesai Istirahat
@@ -312,20 +307,19 @@ export const DashboardPage = React.memo(({
                     ) : (
                       <button
                         disabled
-                        className="flex-1 flex items-center justify-center gap-2 bg-slate-500/20 border border-slate-400/30 rounded-lg p-2.5 text-slate-400 text-xs font-medium cursor-not-allowed"
+                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.muted} border ${currentTheme.borderColor} rounded-lg p-2.5 ${currentTheme.mutedText} text-xs font-medium cursor-not-allowed`}
                       >
                         <Coffee size={16} />
                         Sudah Istirahat
                       </button>
                     )}
-                    
+
                     {!emp.izinTime ? (
                       <button
                         onClick={() => startIzin(emp.id)}
                         disabled={isProcessing}
-                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primarySoftBg} border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 ${currentTheme.primarySoftText} text-xs font-medium transition-all ${
-                          isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primarySoftHover} hover:scale-[1.01] active:scale-[0.99]`
-                        }`}
+                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primarySoftBg} border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 ${currentTheme.primarySoftText} text-xs font-medium transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primarySoftHover} hover:scale-[1.01] active:scale-[0.99]`
+                          }`}
                       >
                         <Bell size={16} />
                         Izin
@@ -334,27 +328,25 @@ export const DashboardPage = React.memo(({
                       <button
                         onClick={() => endIzin(emp.id)}
                         disabled={isProcessing}
-                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primary} text-white border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 text-xs font-medium transition-all ${
-                          isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primaryHover} hover:scale-[1.01] active:scale-[0.99]`
-                        }`}
+                        className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primary} text-white border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 text-xs font-medium transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primaryHover} hover:scale-[1.01] active:scale-[0.99]`
+                          }`}
                       >
                         <CheckCircle size={16} />
                         Selesai Izin
                       </button>
                     )}
-                    
+
                     <button
                       onClick={() => endShift(emp.id)}
                       disabled={isProcessing}
-                      className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primarySoftBg} border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 ${currentTheme.primarySoftText} text-xs font-medium transition-all ${
-                        isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primarySoftHover} hover:scale-[1.01] active:scale-[0.99]`
-                      }`}
+                      className={`flex-1 flex items-center justify-center gap-2 ${currentTheme.primarySoftBg} border ${currentTheme.primarySoftBorder} rounded-lg p-2.5 ${currentTheme.primarySoftText} text-xs font-medium transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : `${currentTheme.primarySoftHover} hover:scale-[1.01] active:scale-[0.99]`
+                        }`}
                     >
                       <Square size={16} />
                       End Shift
                     </button>
                   </div>
-                  
+
                   {/* Timer Display */}
                   {(emp.breakTime || emp.izinTime) && (
                     <div className="mt-2 text-xs text-center">
@@ -376,7 +368,7 @@ export const DashboardPage = React.memo(({
                   const tasks = type === 'cleaning' ? emp.cleaningTasks : emp.workTasks;
                   const filtered = tasks.filter(t => showCompletedTasks || !t.completed);
                   const Icon = type === 'cleaning' ? Sparkles : CheckCircle;
-                  
+
                   return (
                     <div key={type}>
                       <div className="flex items-center gap-2 mb-3">
@@ -388,8 +380,8 @@ export const DashboardPage = React.memo(({
 
                       <div className="space-y-2.5 mb-3">
                         {filtered.map(task => (
-                          <div 
-                            key={task.id} 
+                          <div
+                            key={task.id}
                             className={`rounded-xl border ${priorityColors[task.priority].border} ${priorityColors[task.priority].bg} p-3 cursor-move hover:shadow-md transition-shadow`}
                             draggable
                             onDragStart={(e) => handleDragStart(e, emp.id, type, task.id)}
@@ -398,7 +390,7 @@ export const DashboardPage = React.memo(({
                           >
                             <div className="flex items-start justify-between mb-2.5">
                               <div className="flex items-start gap-2 flex-1 min-w-0">
-                                <GripVertical size={14} className="text-slate-400 mt-0.5 flex-shrink-0" />
+                                <GripVertical size={14} className={`${currentTheme.mutedText} mt-0.5 flex-shrink-0`} />
                                 <div className="flex-1 min-w-0">
                                   <p className={`text-xs ${task.completed ? `${currentTheme.subtext} line-through opacity-60` : currentTheme.text} break-words font-medium`}>{task.task}</p>
                                   {task.createdAt && <p className={`text-xs ${currentTheme.subtext} mt-1`}>📝 {task.createdAt}</p>}
@@ -432,7 +424,7 @@ export const DashboardPage = React.memo(({
                               <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
                                 <span className={`${priorityColors[task.priority].badge} text-white text-xs px-1.5 py-0.5 rounded-full`}>{task.priority}</span>
                                 {type === 'work' && (
-                                  <button onClick={() => deleteTask(emp.id, type, task.id)} className={`text-slate-400 ${currentTheme.accentTextHover} p-0.5`}>
+                                  <button onClick={() => deleteTask(emp.id, type, task.id)} className={`${currentTheme.mutedText} ${currentTheme.accentTextHover} p-0.5`}>
                                     <Trash2 size={12} />
                                   </button>
                                 )}
@@ -441,12 +433,12 @@ export const DashboardPage = React.memo(({
 
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
-                                <input type="range" min="0" max="100" value={task.progress} onChange={(e) => updateProgress(emp.id, type, task.id, e.target.value)} className="flex-1 h-1.5 rounded-lg appearance-none bg-white/10 cursor-pointer" style={{ background: `linear-gradient(to right, ${currentTheme.accentHex} ${task.progress}%, rgba(255,255,255,0.12) ${task.progress}%)` }} />
+                                <input type="range" min="0" max="100" value={task.progress} onChange={(e) => updateProgress(emp.id, type, task.id, e.target.value)} className={`flex-1 h-1.5 rounded-lg appearance-none ${currentTheme.progressTrack} cursor-pointer`} style={{ background: `linear-gradient(to right, ${currentTheme.accentHex} ${task.progress}%, rgba(255,255,255,0.0) ${task.progress}%)` }} />
                                 <span className={`text-xs font-medium ${currentTheme.subtext} w-9 text-right`}>{task.progress}%</span>
                               </div>
 
                               <div className="flex gap-1.5">
-                                <select value={task.priority} onChange={(e) => updatePriority(emp.id, type, task.id, e.target.value)} className={`text-xs px-2 py-1 rounded-md border border-white/10 focus:outline-none ${currentTheme.focusBorder} ${currentTheme.input}`}>
+                                <select value={task.priority} onChange={(e) => updatePriority(emp.id, type, task.id, e.target.value)} className={`text-xs px-2 py-1 rounded-md border ${currentTheme.borderColor} focus:outline-none ${currentTheme.focusBorder} ${currentTheme.input}`}>
                                   <option value="urgent">Urgent</option>
                                   <option value="high">High</option>
                                   <option value="normal">Normal</option>
@@ -498,7 +490,7 @@ export const DashboardPage = React.memo(({
 
                       {type === 'work' && (
                         <div className="flex gap-2">
-                          <input type="text" placeholder="Task pekerjaan baru..." value={newTask[`${emp.id}-${type}`] || ''} onChange={(e) => setNewTask(prev => ({ ...prev, [`${emp.id}-${type}`]: e.target.value }))} onKeyPress={(e) => e.key === 'Enter' && addTask(emp.id, type)} className={`flex-1 px-3 py-2 rounded-lg border border-white/10 focus:outline-none ${currentTheme.focusBorder} ${currentTheme.input} text-xs`} />
+                          <input type="text" placeholder="Task pekerjaan baru..." value={newTask[`${emp.id}-${type}`] || ''} onChange={(e) => setNewTask(prev => ({ ...prev, [`${emp.id}-${type}`]: e.target.value }))} onKeyPress={(e) => e.key === 'Enter' && addTask(emp.id, type)} className={`flex-1 px-3 py-2 rounded-lg border ${currentTheme.borderColor} focus:outline-none ${currentTheme.focusBorder} ${currentTheme.input} text-xs`} />
                           <button onClick={() => addTask(emp.id, type)} className={`${currentTheme.primary} text-white px-3 py-2 rounded-lg ${currentTheme.primaryHover} transition-colors`}>
                             <Plus size={16} />
                           </button>
@@ -514,12 +506,12 @@ export const DashboardPage = React.memo(({
       </div>
     );
   }, [
-    employees, 
-    currentTheme, 
-    AttentionSection, 
-    selectedEmployee, 
-    newTask, 
-    showCompletedTasks, 
+    employees,
+    currentTheme,
+    AttentionSection,
+    selectedEmployee,
+    newTask,
+    showCompletedTasks,
     isProcessing,
     statusConfig,
     priorityColors,
