@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  Package, Plus, CheckCircle, Clock, AlertCircle, Zap, 
-  Eye, Trash2, Play, Search, MessageSquare, ShoppingCart 
+import {
+  Package, Plus, CheckCircle, Clock, AlertCircle, Zap,
+  Eye, Trash2, Play, Search, MessageSquare, ShoppingCart
 } from 'lucide-react';
 import { PLATFORM_CONFIG, PRIORITY_CONFIG, STATUS_CONFIG } from '../../config'; // ✅ Unified import
 
@@ -106,7 +106,7 @@ export const OrderanPage = React.memo(({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-6`}>
+      <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6`}>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 ${currentTheme.accent} rounded-xl flex items-center justify-center`}>
@@ -120,7 +120,7 @@ export const OrderanPage = React.memo(({
           <button
             type="button"
             onClick={() => setShowAddForm(!showAddForm)}
-            className={`flex items-center gap-2 px-5 py-3 rounded-xl ${currentTheme.accent} ${currentTheme.accentHover} text-white transition-all shadow-md font-medium hover:scale-[1.01] active:scale-[0.99]`}
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl ${currentTheme.accent} ${currentTheme.accentHover} text-white transition-all ${currentTheme.shadow} font-medium hover:scale-[1.01] active:scale-[0.99]`}
           >
             <Plus size={18} />
             Tambah Order
@@ -129,7 +129,7 @@ export const OrderanPage = React.memo(({
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className={`${currentTheme.badge} rounded-xl p-4 border-2 border-white/10`}>
+          <div className={`${currentTheme.badge} rounded-xl p-4 border-2 ${currentTheme.borderColor}`}>
             <div className="flex items-center gap-2 mb-2">
               <Package size={16} className={currentTheme.accentText} />
               <span className={`text-xs font-medium ${currentTheme.subtext}`}>Total</span>
@@ -143,14 +143,14 @@ export const OrderanPage = React.memo(({
             </div>
             <p className={`text-2xl font-bold ${currentTheme.accentTextStrong}`}>{stats.pending}</p>
           </div>
-          <div className={`${currentTheme.badge} rounded-xl p-4 border-2 border-white/10`}>
+          <div className={`${currentTheme.badge} rounded-xl p-4 border-2 ${currentTheme.borderColor}`}>
             <div className="flex items-center gap-2 mb-2">
               <Zap size={16} className={currentTheme.accentText} />
               <span className={`text-xs font-medium ${currentTheme.subtext}`}>Diproses</span>
             </div>
             <p className={`text-2xl font-bold ${currentTheme.accentTextStrong}`}>{stats.process}</p>
           </div>
-          <div className={`${currentTheme.badge} rounded-xl p-4 border-2 border-white/10`}>
+          <div className={`${currentTheme.badge} rounded-xl p-4 border-2 ${currentTheme.borderColor}`}>
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle size={16} className={currentTheme.accentText} />
               <span className={`text-xs font-medium ${currentTheme.subtext}`}>Selesai</span>
@@ -158,7 +158,7 @@ export const OrderanPage = React.memo(({
             <p className={`text-2xl font-bold ${currentTheme.accentTextStrong}`}>{stats.completed}</p>
           </div>
           {stats.overdue > 0 && (
-            <div className={`${currentTheme.badge} rounded-xl p-4 border-2 border-white/10`}>
+            <div className={`${currentTheme.badge} rounded-xl p-4 border-2 ${currentTheme.borderColor}`}>
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle size={16} className={currentTheme.accentText} />
                 <span className={`text-xs font-medium ${currentTheme.subtext}`}>Terlambat</span>
@@ -173,7 +173,7 @@ export const OrderanPage = React.memo(({
       {showAddForm && (
         <div
           key="add-order-form"
-          className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-6`}
+          className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6`}
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
         >
@@ -192,7 +192,7 @@ export const OrderanPage = React.memo(({
                 onClick={(e) => e.stopPropagation()}
                 placeholder="Masukkan username buyer"
                 autoComplete="off"
-                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
               />
             </div>
             <div>
@@ -205,7 +205,7 @@ export const OrderanPage = React.memo(({
                 }}
                 onFocus={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
-                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
               >
                 <option value="wa">WhatsApp</option>
                 <option value="tele">Telegram</option>
@@ -226,7 +226,7 @@ export const OrderanPage = React.memo(({
                 placeholder="Deskripsi orderan..."
                 rows="3"
                 autoComplete="off"
-                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
               />
             </div>
             <div>
@@ -243,7 +243,7 @@ export const OrderanPage = React.memo(({
                 onClick={(e) => e.stopPropagation()}
                 placeholder="Jumlah"
                 autoComplete="off"
-                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
               />
             </div>
             <div>
@@ -256,7 +256,7 @@ export const OrderanPage = React.memo(({
                 }}
                 onFocus={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
-                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -275,7 +275,7 @@ export const OrderanPage = React.memo(({
                 }}
                 onFocus={(e) => e.stopPropagation()}
                 onClick={(e) => e.stopPropagation()}
-                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+                className={`w-full px-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
               />
             </div>
           </div>
@@ -283,7 +283,7 @@ export const OrderanPage = React.memo(({
             <button
               type="button"
               onClick={handleAddOrder}
-              className={`flex items-center gap-2 px-5 py-2 rounded-lg ${currentTheme.accent} ${currentTheme.accentHover} text-white transition-all shadow-md font-medium hover:scale-[1.01] active:scale-[0.99]`}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg ${currentTheme.accent} ${currentTheme.accentHover} text-white transition-all ${currentTheme.shadow} font-medium hover:scale-[1.01] active:scale-[0.99]`}
             >
               <CheckCircle size={16} />
               Simpan Order
@@ -300,7 +300,7 @@ export const OrderanPage = React.memo(({
       )}
 
       {/* Filters */}
-      <div className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-4`}>
+      <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-4`}>
         <div className="flex flex-wrap gap-3">
           <div className="flex-1 min-w-[200px]">
             <div className="relative">
@@ -310,7 +310,7 @@ export const OrderanPage = React.memo(({
                 value={orderSearch}
                 onChange={(e) => setOrderSearch(e.target.value)}
                 placeholder="Cari username atau deskripsi..."
-                className={`w-full pl-10 pr-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+                className={`w-full pl-10 pr-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
               />
             </div>
           </div>
@@ -318,7 +318,7 @@ export const OrderanPage = React.memo(({
           <select
             value={orderFilter}
             onChange={(e) => setOrderFilter(e.target.value)}
-            className={`px-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+            className={`px-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
           >
             <option value="all">Semua Status</option>
             <option value="pending">Pending</option>
@@ -329,7 +329,7 @@ export const OrderanPage = React.memo(({
           <select
             value={orderPlatformFilter}
             onChange={(e) => setOrderPlatformFilter(e.target.value)}
-            className={`px-4 py-2 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+            className={`px-4 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
           >
             <option value="all">Semua Platform</option>
             <option value="wa">WhatsApp</option>
@@ -355,7 +355,7 @@ export const OrderanPage = React.memo(({
       {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.length === 0 ? (
-          <div className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-12 text-center`}>
+          <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-12 text-center`}>
             <Package size={48} className="mx-auto text-slate-300 mb-4" />
             <p className={`text-lg font-medium ${currentTheme.subtext}`}>Belum ada orderan</p>
             <p className={`text-sm ${currentTheme.subtext} mt-2`}>Klik tombol "Tambah Order" untuk memulai</p>
@@ -370,7 +370,7 @@ export const OrderanPage = React.memo(({
             const PlatformIcon = platform.icon === 'MessageSquare' ? MessageSquare : ShoppingCart;
 
             return (
-              <div key={order.id} className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-5 transition-all ${expanded ? `ring-2 ${currentTheme.ringAccent}` : ''}`}>
+              <div key={order.id} className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-5 transition-all ${expanded ? `ring-2 ${currentTheme.ringAccent}` : ''}`}>
                 <div className="flex items-start gap-4">
                   <div className={`w-12 h-12 ${currentTheme.accent} rounded-xl flex items-center justify-center flex-shrink-0`}>
                     <PlatformIcon className="text-white" size={24} />
@@ -488,7 +488,7 @@ export const OrderanPage = React.memo(({
                     )}
 
                     {expanded && (
-                      <div className="mt-4 pt-4 border-t-2 space-y-3">
+                      <div className={`mt-4 pt-4 border-t-2 ${currentTheme.borderColor} space-y-3`}>
                         <div>
                           <h4 className={`text-sm font-bold ${currentTheme.text} mb-2`}>Deskripsi Lengkap</h4>
                           <p className={`text-sm ${currentTheme.text} mb-4 whitespace-pre-wrap break-words`}>{order.description}</p>
@@ -516,7 +516,7 @@ export const OrderanPage = React.memo(({
                               value={newNote}
                               onChange={(e) => setNewNote(e.target.value)}
                               placeholder="Tambah catatan..."
-                              className={`flex-1 px-3 py-2 rounded-lg ${currentTheme.input} border-2 text-sm focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
+                              className={`flex-1 px-3 py-2 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} text-sm focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder}`}
                               onKeyPress={(e) => {
                                 if (e.key === 'Enter' && newNote.trim()) {
                                   addOrderNote(order.id, newNote);
@@ -580,8 +580,8 @@ export const OrderanPage = React.memo(({
       {/* Process Note Modal */}
       {showProcessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowProcessModal(false)}>
-          <div 
-            className={`${currentTheme.card} rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4`}
+          <div
+            className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} p-6 max-w-md w-full mx-4`}
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className={`text-xl font-bold ${currentTheme.text} mb-4 flex items-center gap-2`}>
@@ -597,7 +597,7 @@ export const OrderanPage = React.memo(({
               placeholder="Contoh: Sudah konfirmasi dengan customer, mulai pengerjaan..."
               rows="4"
               autoFocus
-              className={`w-full px-4 py-3 rounded-lg ${currentTheme.input} border-2 focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder} mb-4`}
+              className={`w-full px-4 py-3 rounded-lg ${currentTheme.input} border-2 ${currentTheme.borderColor} focus:ring-2 ${currentTheme.focusRing} ${currentTheme.focusBorder} mb-4`}
             />
             <div className="flex gap-3">
               <button
