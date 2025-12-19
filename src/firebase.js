@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, setDoc, onSnapshot, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, onSnapshot, getDoc, runTransaction } from 'firebase/firestore';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 
 // Firebase configuration from environment variables
@@ -28,11 +28,11 @@ const sanitizeForFirebase = (obj) => {
   if (obj === null || obj === undefined) {
     return null;
   }
-  
+
   if (Array.isArray(obj)) {
     return obj.map(item => sanitizeForFirebase(item)).filter(item => item !== undefined);
   }
-  
+
   if (typeof obj === 'object' && obj !== null) {
     const sanitized = {};
     for (const [key, value] of Object.entries(obj)) {
@@ -44,7 +44,7 @@ const sanitizeForFirebase = (obj) => {
     }
     return sanitized;
   }
-  
+
   return obj;
 };
 
@@ -55,7 +55,7 @@ export const dbService = {
     try {
       // ✅ CRITICAL FIX: Sanitize data before saving to remove undefined values
       const sanitizedEmployees = sanitizeForFirebase(employees);
-      
+
       await setDoc(doc(db, 'attendance', 'employees'), {
         data: sanitizedEmployees,
         lastUpdated: new Date().toISOString()
@@ -63,6 +63,52 @@ export const dbService = {
       console.log('✅ Employees saved to Firestore');
     } catch (error) {
       console.error('❌ Error saving employees:', error);
+      throw error;
+    }
+  },
+
+  // Update single employee transactionally (Prevent Race Conditions)
+  async updateEmployeeTransaction(updatedEmployee) {
+    try {
+      if (!updatedEmployee || !updatedEmployee.id) {
+        throw new Error('Invalid employee data for update');
+      }
+
+      const sanitizedEmployee = sanitizeForFirebase(updatedEmployee);
+      const employeesRef = doc(db, 'attendance', 'employees');
+
+      await runTransaction(db, async (transaction) => {
+        const sfDoc = await transaction.get(employeesRef);
+        if (!sfDoc.exists()) {
+          throw new Error("Document does not exist!");
+        }
+
+        const currentData = sfDoc.data();
+        const currentEmployees = currentData.data || [];
+
+        // Find index of employee to update
+        const empIndex = currentEmployees.findIndex(e => e.id === updatedEmployee.id);
+
+        let newEmployees;
+        if (empIndex === -1) {
+          // Employee not found, arguably should append, but in this system employees are fixed.
+          // We will append just in case/or throw. Let's append to be safe if ID not found.
+          newEmployees = [...currentEmployees, sanitizedEmployee];
+        } else {
+          // Update specific employee
+          newEmployees = [...currentEmployees];
+          newEmployees[empIndex] = sanitizedEmployee;
+        }
+
+        transaction.set(employeesRef, {
+          data: newEmployees,
+          lastUpdated: new Date().toISOString()
+        });
+      });
+
+      console.log(`✅ Employee ${updatedEmployee.name} updated transactionally`);
+    } catch (error) {
+      console.error('❌ Error updating employee transactionally:', error);
       throw error;
     }
   },
@@ -283,7 +329,7 @@ export const dbService = {
   async loadInitialData() {
     try {
       console.log('📥 Loading initial data from Firebase...');
-      
+
       const [employeesDoc, attendanceDoc, productivityDoc, attentionsDoc, periodDoc, shiftTasksDoc, shiftScheduleDoc, ordersDoc] = await Promise.all([
         getDoc(doc(db, 'attendance', 'employees')),
         getDoc(doc(db, 'attendance', 'yearlyAttendance')),
