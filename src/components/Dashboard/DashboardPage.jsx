@@ -99,10 +99,10 @@ export const DashboardPage = React.memo(({
       <div className="space-y-8">
         {AttentionSection}
         
-        <div className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-6`}>
+        <div className={`${currentTheme.card} border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6`}>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className={`text-2xl font-bold ${currentTheme.text}`}>EncoreJeune Absensi</h1>
+              <h1 className={`text-2xl font-bold ${currentTheme.text}`}>ABSENSI ENCOREJEUNE</h1>
               <p className={`text-sm ${currentTheme.subtext} flex items-center gap-1.5 mt-1`}>
                 <Calendar size={14} />
                 {date}
@@ -137,11 +137,11 @@ export const DashboardPage = React.memo(({
             <div className="flex gap-2">
               <button
                 onClick={() => setSelectedEmployee('all')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`px-4 py-2 border-2 font-bold transition-all text-sm ${
                   selectedEmployee === 'all'
-                    ? `${currentTheme.accent} ${currentTheme.accentHover} text-white shadow-md hover:scale-[1.01] active:scale-[0.99]`
-                    : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
-                }`}
+                    ? `${currentTheme.accent} text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`
+                    : `${currentTheme.badge} hover:bg-black hover:text-white`
+                } ${selectedEmployee === 'all' ? 'border-black' : 'border-transparent'}`}
               >
                 Semua
               </button>
@@ -149,11 +149,11 @@ export const DashboardPage = React.memo(({
                 <button
                   key={emp.id}
                   onClick={() => setSelectedEmployee(emp.name)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-4 py-2 border-2 font-bold transition-all text-sm ${
                     selectedEmployee === emp.name
-                      ? `${currentTheme.accent} ${currentTheme.accentHover} text-white shadow-md hover:scale-[1.01] active:scale-[0.99]`
-                      : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
-                  }`}
+                      ? `${currentTheme.accent} text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 active:translate-x-0 active:translate-y-0`
+                      : `${currentTheme.badge} hover:bg-black hover:text-white`
+                  } ${selectedEmployee === emp.name ? 'border-black' : 'border-transparent'}`}
                 >
                   {emp.name}
                 </button>
@@ -163,13 +163,13 @@ export const DashboardPage = React.memo(({
         </div>
 
         {/* Real-time Productivity Dashboard */}
-        <div className={`${currentTheme.card} rounded-2xl shadow-md border-2 p-6`}>
+        <div className={`${currentTheme.card} border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] p-6`}>
           <div className="flex items-center gap-3 mb-5">
-            <div className={`${currentTheme.accent} p-2.5 rounded-xl`}>
+            <div className={`${currentTheme.accent} border-2 border-black p-2.5`}>
               <TrendingUp className="text-white" size={20} />
             </div>
             <div>
-              <h2 className={`text-xl font-semibold ${currentTheme.text}`}>Productivity Dashboard</h2>
+              <h2 className={`text-xl font-bold ${currentTheme.text}`}>PRODUCTIVITY DASHBOARD</h2>
               <p className={`text-xs ${currentTheme.subtext}`}>Real-time task completion tracking</p>
             </div>
           </div>
@@ -183,13 +183,13 @@ export const DashboardPage = React.memo(({
               const completionRate = allTasks.length > 0 ? Math.round((completed / allTasks.length) * 100) : 0;
               
               return (
-                <div key={emp.id} className={`${currentTheme.badge} rounded-xl p-4 border-2`}>
+                <div key={emp.id} className={`${currentTheme.badge} border-2 border-black p-4`}>
                   <div className="flex items-center gap-2 mb-3">
-                    <div className={`w-8 h-8 ${currentTheme.accent} rounded-full flex items-center justify-center font-bold text-white text-sm`}>
+                    <div className={`w-8 h-8 ${currentTheme.accent} border-2 border-black flex items-center justify-center font-bold text-white text-sm`}>
                       {emp.name[0]}
                     </div>
                     <div className="flex-1">
-                      <h3 className={`text-sm font-semibold ${currentTheme.text}`}>{emp.name}</h3>
+                      <h3 className={`text-sm font-bold ${currentTheme.text}`}>{emp.name}</h3>
                       <p className={`text-xs ${currentTheme.subtext}`}>{completionRate}% selesai</p>
                     </div>
                   </div>
@@ -215,7 +215,7 @@ export const DashboardPage = React.memo(({
                     </div>
                   </div>
                   
-                  <div className="mt-3 bg-white/10 rounded-full h-2 overflow-hidden">
+                  <div className="mt-3 bg-white/10 border-2 border-black h-2 overflow-hidden">
                     <div 
                       className={`${currentTheme.accent} h-full transition-all duration-500`}
                       style={{ width: `${completionRate}%` }}
@@ -228,32 +228,32 @@ export const DashboardPage = React.memo(({
         </div>
 
         {filteredEmployees.map(emp => (
-          <div key={emp.id} className={`${currentTheme.card} rounded-2xl shadow-md border-2 overflow-hidden`}>
+          <div key={emp.id} className={`${currentTheme.card} border-2 border-black shadow-[4px_4px_0_0_rgba(0,0,0,1)] overflow-hidden`}>
             <div className={`bg-gradient-to-r ${currentTheme.header} p-5`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center font-bold text-slate-700 text-lg">
+                  <div className="w-12 h-12 border-4 border-black bg-white flex items-center justify-center font-bold text-slate-700 text-lg">
                     {emp.name[0]}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-lg font-semibold text-white">{emp.name}</h2>
+                      <h2 className="text-lg font-bold text-white">{emp.name}</h2>
                       {emp.isAdmin && (
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${currentTheme.accentSoftBg} ${currentTheme.accentTextStrong} border ${currentTheme.accentSoftBorder}`}>
                           👑 Admin
                         </span>
                       )}
                       {emp.shift && (
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        <span className={`px-2 py-0.5 border-2 border-black text-xs font-bold ${
                           emp.shift === 'pagi' 
-                            ? `${currentTheme.accentSoftBg} ${currentTheme.accentTextStrong} border ${currentTheme.accentSoftBorder}`
-                            : `${currentTheme.accentSoftBg} ${currentTheme.accentTextStrong} border ${currentTheme.accentSoftBorder}`
+                            ? 'bg-yellow-200 text-black'
+                            : 'bg-cyan-200 text-black'
                         }`}>
                           {emp.shift === 'pagi' ? '☀️ Pagi' : '🌙 Malam'}
                         </span>
                       )}
                       {emp.overtime && (
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${currentTheme.accentSoftBg} ${currentTheme.accentTextStrong} border ${currentTheme.accentSoftBorder} animate-pulse`}>
+                        <span className={`px-2 py-0.5 border-2 border-black text-xs font-bold bg-fuchsia-100 text-fuchsia-800 animate-pulse`}>
                           ⚡ LEMBUR
                         </span>
                       )}
@@ -263,12 +263,12 @@ export const DashboardPage = React.memo(({
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-300">EMP-{emp.id.toString().padStart(3, '0')}</p>
+                    <p className="text-xs text-slate-300 font-bold">EMP-{emp.id.toString().padStart(3, '0')}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {['hadir', 'telat', 'lembur', 'izin', 'libur', 'sakit', 'alpha'].map(s => (
-                    <div key={s} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${emp.status === s ? `${statusConfig?.[s]?.bg || 'bg-slate-700'} text-white shadow-lg` : 'bg-slate-700 text-slate-400'} cursor-not-allowed opacity-70`}>
+                    <div key={s} className={`px-3 py-1.5 border-2 border-black text-xs font-bold ${emp.status === s ? 'bg-fuchsia-600 text-white shadow-[2px_2px_0_0_rgba(0,0,0,1)]' : 'bg-white text-black'} cursor-not-allowed opacity-70`}>
                       {statusConfig?.[s]?.label || s}
                     </div>
                   ))}
