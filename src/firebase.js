@@ -325,12 +325,37 @@ export const dbService = {
     });
   },
 
+  // Save mbak tasks
+  async saveMbakTasks(tasks) {
+    try {
+      const sanitizedTasks = sanitizeForFirebase(tasks);
+      await setDoc(doc(db, 'attendance', 'mbakData'), {
+        data: sanitizedTasks,
+        lastUpdated: new Date().toISOString()
+      });
+      console.log('✅ Mbak tasks saved to Firestore');
+    } catch (error) {
+      console.error('❌ Error saving mbak tasks:', error);
+      throw error;
+    }
+  },
+
+  // Listen to mbak tasks changes
+  onMbakTasksChange(callback) {
+    return onSnapshot(doc(db, 'attendance', 'mbakData'), (doc) => {
+      if (doc.exists()) {
+        console.log('🔄 Mbak tasks updated from Firestore');
+        callback(doc.data().data);
+      }
+    });
+  },
+
   // Load initial data (one-time read)
   async loadInitialData() {
     try {
       console.log('📥 Loading initial data from Firebase...');
 
-      const [employeesDoc, attendanceDoc, productivityDoc, attentionsDoc, periodDoc, shiftTasksDoc, shiftScheduleDoc, ordersDoc] = await Promise.all([
+      const [employeesDoc, attendanceDoc, productivityDoc, attentionsDoc, periodDoc, shiftTasksDoc, shiftScheduleDoc, ordersDoc, mbakDoc] = await Promise.all([
         getDoc(doc(db, 'attendance', 'employees')),
         getDoc(doc(db, 'attendance', 'yearlyAttendance')),
         getDoc(doc(db, 'attendance', 'productivityData')),
@@ -338,7 +363,8 @@ export const dbService = {
         getDoc(doc(db, 'attendance', 'currentPeriod')),
         getDoc(doc(db, 'attendance', 'shiftTasks')),
         getDoc(doc(db, 'attendance', 'shiftSchedule')),
-        getDoc(doc(db, 'attendance', 'orders'))
+        getDoc(doc(db, 'attendance', 'orders')),
+        getDoc(doc(db, 'attendance', 'mbakData'))
       ]);
 
       const data = {
@@ -352,7 +378,8 @@ export const dbService = {
         } : null,
         shiftTasks: shiftTasksDoc.exists() ? shiftTasksDoc.data().data : null,
         shiftSchedule: shiftScheduleDoc.exists() ? shiftScheduleDoc.data().data : null,
-        orders: ordersDoc.exists() ? ordersDoc.data().data : null
+        orders: ordersDoc.exists() ? ordersDoc.data().data : null,
+        mbakTasks: mbakDoc.exists() ? mbakDoc.data().data : []
       };
 
       console.log('✅ Initial data loaded:', {
@@ -361,7 +388,8 @@ export const dbService = {
         productivity: data.productivityData?.length || 0,
         attentions: data.attentions?.length || 0,
         shiftSchedule: !!data.shiftSchedule,
-        orders: data.orders?.length || 0
+        orders: data.orders?.length || 0,
+        mbakTasks: data.mbakTasks?.length || 0
       });
 
       return data;
