@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Shield, Users, Calendar, CheckCircle, Sparkles, BarChart3, LogOut,
-  Save, Edit, Trash2, Plus, Sun, Moon, Settings, Upload
+  Save, Edit, Trash2, Plus, X, Sun, Moon, Settings, Upload
 } from 'lucide-react';
 
 /**
@@ -25,6 +25,8 @@ export const AdminPanel = React.memo(({
   setEditingEmployee,
   handleSaveEmployee,
   handleEditEmployee,
+  handleAddEmployee,
+  handleDeleteEmployee,
   handleDeleteTask,
   handleResetEmployee,
   currentMonth,
@@ -43,23 +45,27 @@ export const AdminPanel = React.memo(({
   importData,
   setShowClearModal
 }) => {
+  const [showAddForm, setShowAddForm] = React.useState(false);
+  const [newEmpName, setNewEmpName] = React.useState('');
+  const [newEmpId, setNewEmpId] = React.useState('');
+
   return (
     <div className="space-y-8">
       {/* Admin Header */}
-      <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6`}>
-        <div className="flex items-center justify-between">
+      <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-4 sm:p-6`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className={`${currentTheme.accent} p-3 rounded-xl`}>
-              <Shield className="text-white" size={28} />
+            <div className={`${currentTheme.accent} p-2 sm:p-3 rounded-xl`}>
+              <Shield className="text-white w-6 h-6 sm:w-7 sm:h-7" />
             </div>
             <div>
-              <h2 className={`text-2xl font-bold ${currentTheme.text}`}>Admin Panel</h2>
-              <p className={`text-sm ${currentTheme.subtext}`}>Kelola semua data sistem</p>
+              <h2 className={`text-xl sm:text-2xl font-bold ${currentTheme.text}`}>Admin Panel</h2>
+              <p className={`text-xs sm:text-sm ${currentTheme.subtext}`}>Kelola semua data sistem</p>
             </div>
           </div>
           <button
             onClick={handleAdminLogout}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg ${currentTheme.accent} text-white ${currentTheme.accentHover} transition-all ${currentTheme.shadow} text-sm font-medium hover:scale-[1.01] active:scale-[0.99]`}
+            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg ${currentTheme.accent} text-white ${currentTheme.accentHover} transition-all ${currentTheme.shadow} text-xs sm:text-sm font-medium hover:scale-[1.01] active:scale-[0.99]`}
           >
             <LogOut size={16} />
             Logout Admin
@@ -69,7 +75,7 @@ export const AdminPanel = React.memo(({
 
       {/* Admin Tabs */}
       <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-2`}>
-        <div className="flex gap-2">
+        <div className="flex gap-1 overflow-x-auto no-scrollbar lg:justify-start lg:gap-2">
           {[
             { id: 'employees', label: 'Karyawan', icon: Users },
             { id: 'calendar', label: 'Kalender', icon: Calendar },
@@ -80,12 +86,12 @@ export const AdminPanel = React.memo(({
             <button
               key={tab.id}
               onClick={() => setAdminTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all text-sm ${adminTab === tab.id
-                  ? `${currentTheme.accent} text-white ${currentTheme.shadow}`
-                  : `${currentTheme.badge} hover:bg-white/5`
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl font-medium transition-all text-xs sm:text-sm whitespace-nowrap ${adminTab === tab.id
+                ? `${currentTheme.accent} text-white ${currentTheme.shadow}`
+                : `${currentTheme.badge} hover:bg-white/5`
                 }`}
             >
-              <tab.icon size={16} />
+              <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               {tab.label}
             </button>
           ))}
@@ -95,10 +101,92 @@ export const AdminPanel = React.memo(({
       {/* Employee Management Tab */}
       {adminTab === 'employees' && (
         <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6`}>
-          <div className="flex items-center gap-2 mb-6">
-            <Users className="text-blue-500" size={24} />
-            <h3 className={`text-xl font-bold ${currentTheme.text}`}>Manajemen Karyawan</h3>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Users className="text-blue-500" size={24} />
+              <h3 className={`text-xl font-bold ${currentTheme.text}`}>Manajemen Karyawan</h3>
+            </div>
+            <button
+              onClick={() => {
+                if (showAddForm) {
+                  setShowAddForm(false);
+                  setNewEmpName('');
+                  setNewEmpId('');
+                } else {
+                  // Pre-fill next available ID
+                  const nextId = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+                  setNewEmpId(nextId.toString());
+                  setShowAddForm(true);
+                }
+              }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg ${currentTheme.accent} text-white ${currentTheme.accentHover} transition-all text-sm font-medium hover:scale-[1.01] active:scale-[0.99]`}
+            >
+              {showAddForm ? <X size={16} /> : <Plus size={16} />}
+              {showAddForm ? 'Batal' : 'Tambah Karyawan'}
+            </button>
           </div>
+
+          {/* New Employee Form */}
+          {showAddForm && (
+            <div className={`mb-6 p-5 rounded-xl border-2 ${currentTheme.borderColor} ${currentTheme.accentSoftBg} animate-fade-in`}>
+              <h4 className={`text-sm font-bold ${currentTheme.text} mb-4 flex items-center gap-2`}>
+                <Plus size={14} className="text-blue-400" />
+                Tambah Karyawan Baru
+              </h4>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className={`block text-xs font-semibold ${currentTheme.text} mb-1.5`}>Nama Karyawan:</label>
+                  <input
+                    type="text"
+                    value={newEmpName}
+                    onChange={(e) => setNewEmpName(e.target.value)}
+                    placeholder="Contoh: Budi Santoso"
+                    className={`w-full px-3 py-2 rounded-lg border ${currentTheme.input} text-sm focus:outline-none focus:border-blue-500`}
+                  />
+                </div>
+                <div>
+                  <label className={`block text-xs font-semibold ${currentTheme.text} mb-1.5`}>ID Karyawan:</label>
+                  <input
+                    type="number"
+                    value={newEmpId}
+                    onChange={(e) => setNewEmpId(e.target.value)}
+                    placeholder="Contoh: 4"
+                    className={`w-full px-3 py-2 rounded-lg border ${currentTheme.input} text-sm focus:outline-none focus:border-blue-500`}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setNewEmpName('');
+                    setNewEmpId('');
+                  }}
+                  className={`px-4 py-2 rounded-lg ${currentTheme.badge} hover:bg-white/5 transition-all text-sm font-medium`}
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!newEmpName.trim() || !newEmpId.trim()) {
+                      alert('Harap isi Nama dan ID!');
+                      return;
+                    }
+                    const success = await handleAddEmployee(newEmpName, newEmpId);
+                    if (success) {
+                      setShowAddForm(false);
+                      setNewEmpName('');
+                      setNewEmpId('');
+                    }
+                  }}
+                  className={`flex items-center gap-2 px-5 py-2 rounded-lg ${currentTheme.accent} text-white ${currentTheme.accentHover} transition-all text-sm font-bold hover:scale-[1.02] active:scale-[0.98] shadow-lg`}
+                >
+                  <Save size={16} />
+                  Simpan Karyawan
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-4">
             {employees.map(emp => (
@@ -154,13 +242,24 @@ export const AdminPanel = React.memo(({
                         Tasks: 🧹 {emp.cleaningTasks.length} | 💼 {emp.workTasks.length}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleEditEmployee(emp)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg ${currentTheme.accent} text-white ${currentTheme.accentHover} transition-all text-sm font-medium hover:scale-[1.01] active:scale-[0.99]`}
-                    >
-                      <Edit size={16} />
-                      Edit
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEditEmployee(emp)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg ${currentTheme.accent} text-white ${currentTheme.accentHover} transition-all text-sm font-medium hover:scale-[1.01] active:scale-[0.99]`}
+                        title="Edit Karyawan"
+                      >
+                        <Edit size={16} />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEmployee(emp.id)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600/20 text-red-500 border-2 border-red-500/20 hover:bg-red-600/30 transition-all text-sm font-medium hover:scale-[1.01] active:scale-[0.99]`}
+                        title="Hapus Karyawan"
+                      >
+                        <Trash2 size={16} />
+                        Hapus
+                      </button>
+                    </div>
                   </div>
                 )}
 
