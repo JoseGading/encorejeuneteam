@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { dbService } from '../../firebase';
 
 /**
@@ -401,23 +401,23 @@ export const ShiftSchedulePage = React.memo(({
   return (
     <div className="space-y-6 relative z-10">
       {/* Header with Navigation */}
-      <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6 relative z-20`}>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className={`bg-gradient-to-br from-blue-700 to-blue-500 p-3 rounded-xl ${currentTheme.shadow}`}>
-              <CalendarDays className="text-white" size={24} />
+      <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-4 sm:p-6 relative z-20`}>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className={`bg-gradient-to-br from-blue-700 to-blue-500 p-2 sm:p-3 rounded-xl ${currentTheme.shadow}`}>
+              <CalendarDays className="text-white w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className={`text-2xl font-bold ${currentTheme.text}`}>Jadwal Shift</h2>
-              <p className={`text-sm ${currentTheme.subtext} mt-1`}>
+              <h2 className={`text-xl sm:text-2xl font-bold ${currentTheme.text}`}>Jadwal Shift</h2>
+              <p className={`text-[10px] sm:text-sm ${currentTheme.subtext} mt-0.5 sm:mt-1`}>
                 {karyawan.join(' • ')}
               </p>
             </div>
           </div>
 
           {/* Month/Year Navigation */}
-          <div className="flex items-center gap-3 relative z-30">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 relative z-30">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
                 type="button"
                 onClick={(e) => {
@@ -436,12 +436,12 @@ export const ShiftSchedulePage = React.memo(({
                     setShiftScheduleMonth(shiftScheduleMonth - 1);
                   }
                 }}
-                className={`p-2 rounded-lg ${currentTheme.badge} hover:bg-white/5 transition-all cursor-pointer relative z-30 hover:scale-[1.01] active:scale-[0.99]`}
+                className={`p-1.5 sm:p-2 rounded-lg ${currentTheme.badge} hover:bg-white/5 transition-all cursor-pointer relative z-30 hover:scale-[1.01] active:scale-[0.99]`}
                 title="Bulan Sebelumnya"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft className="w-[18px] h-[18px] sm:w-5 sm:h-5" />
               </button>
-              <div className="flex items-center gap-2 px-2">
+              <div className="flex items-center gap-1 sm:gap-2 px-1 sm:px-2">
                 {/* Manual Month Selection */}
                 <select
                   value={shiftScheduleMonth}
@@ -453,7 +453,7 @@ export const ShiftSchedulePage = React.memo(({
                     localStorage.setItem('shiftScheduleWeek', '0');
                     setShiftScheduleMonth(newMonth);
                   }}
-                  className={`bg-transparent text-lg font-semibold ${currentTheme.text} cursor-pointer focus:outline-none border-b-2 border-transparent hover:border-blue-500 transition-all`}
+                  className={`bg-transparent text-sm sm:text-lg font-semibold ${currentTheme.text} cursor-pointer focus:outline-none border-b-2 border-transparent hover:border-blue-500 transition-all`}
                 >
                   {monthNames.map((name, index) => (
                     <option key={index} value={index} className="bg-slate-800 text-white">
@@ -473,7 +473,7 @@ export const ShiftSchedulePage = React.memo(({
                     localStorage.setItem('shiftScheduleWeek', '0');
                     setShiftScheduleYear(newYear);
                   }}
-                  className={`bg-transparent text-lg font-semibold ${currentTheme.text} cursor-pointer focus:outline-none border-b-2 border-transparent hover:border-blue-500 transition-all`}
+                  className={`bg-transparent text-sm sm:text-lg font-semibold ${currentTheme.text} cursor-pointer focus:outline-none border-b-2 border-transparent hover:border-blue-500 transition-all`}
                 >
                   {[shiftScheduleYear - 2, shiftScheduleYear - 1, shiftScheduleYear, shiftScheduleYear + 1, shiftScheduleYear + 2].map(year => (
                     <option key={year} value={year} className="bg-slate-800 text-white">
@@ -503,7 +503,7 @@ export const ShiftSchedulePage = React.memo(({
                 className={`p-2 rounded-lg ${currentTheme.badge} hover:bg-white/5 transition-all cursor-pointer relative z-30 hover:scale-[1.01] active:scale-[0.99]`}
                 title="Bulan Berikutnya"
               >
-                <ChevronRight size={20} />
+                <ChevronRight className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -592,7 +592,7 @@ export const ShiftSchedulePage = React.memo(({
                     <button
                       type="button"
                       onClick={() => updateLibur(actualIdx, 'Tidak Ada')}
-                      className={`px-2 py-1 text-xs rounded-md transition-all ${row.libur === 'Tidak Ada'
+                      className={`px-2 py-1 text-[10px] rounded-md transition-all ${row.libur === 'Tidak Ada'
                         ? 'bg-blue-700 text-white font-bold'
                         : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
                         }`}
@@ -604,7 +604,7 @@ export const ShiftSchedulePage = React.memo(({
                         key={k}
                         type="button"
                         onClick={() => updateLibur(actualIdx, k)}
-                        className={`px-2 py-1 text-xs rounded-md transition-all ${row.libur === k
+                        className={`px-2 py-1 text-[10px] rounded-md transition-all ${row.libur === k
                           ? 'bg-blue-600 text-white font-bold'
                           : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
                           }`}
@@ -617,7 +617,7 @@ export const ShiftSchedulePage = React.memo(({
 
                 {/* Shift Pagi */}
                 <div className="mb-3">
-                  <label className={`text-xs font-semibold ${currentTheme.subtext} mb-1.5 block`}>
+                  <label className={`text-[10px] font-semibold ${currentTheme.subtext} mb-1 block`}>
                     ☀️ Shift Pagi:
                   </label>
                   <div className="flex gap-1.5 flex-wrap">
@@ -625,7 +625,7 @@ export const ShiftSchedulePage = React.memo(({
                       row.pagi.map((k, i) => (
                         <span
                           key={i}
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${doubleShiftPerson === k
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${doubleShiftPerson === k
                             ? `bg-blue-700 text-white ${currentTheme.shadow}`
                             : 'bg-blue-600 text-white'
                             }`}
@@ -635,14 +635,14 @@ export const ShiftSchedulePage = React.memo(({
                         </span>
                       ))
                     ) : (
-                      <span className={`text-xs ${currentTheme.subtext} italic`}>-</span>
+                      <span className={`text-[10px] ${currentTheme.subtext} italic`}>-</span>
                     )}
                   </div>
                 </div>
 
                 {/* Shift Malam */}
                 <div>
-                  <label className={`text-xs font-semibold ${currentTheme.subtext} mb-1.5 block`}>
+                  <label className={`text-[10px] font-semibold ${currentTheme.subtext} mb-1 block`}>
                     🌙 Shift Malam:
                   </label>
                   <div className="flex gap-1.5 flex-wrap">
@@ -650,7 +650,7 @@ export const ShiftSchedulePage = React.memo(({
                       row.malam.map((k, i) => (
                         <span
                           key={i}
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${doubleShiftPerson === k
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${doubleShiftPerson === k
                             ? `bg-blue-700 text-white ${currentTheme.shadow}`
                             : 'bg-blue-600 text-white'
                             }`}
@@ -660,7 +660,7 @@ export const ShiftSchedulePage = React.memo(({
                         </span>
                       ))
                     ) : (
-                      <span className={`text-xs ${currentTheme.subtext} italic`}>-</span>
+                      <span className={`text-[10px] ${currentTheme.subtext} italic`}>-</span>
                     )}
                   </div>
                 </div>
@@ -675,3 +675,5 @@ export const ShiftSchedulePage = React.memo(({
 });
 
 ShiftSchedulePage.displayName = 'ShiftSchedulePage';
+
+export default ShiftSchedulePage;
