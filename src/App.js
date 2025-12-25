@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Bell, X, Upload, Plus, CheckCircle, Trash2, Clock, Trophy,
-  Lock, Home, ShoppingCart, BarChart3, CalendarDays, Shield,
+  Lock, Home, ShoppingCart, BarChart3, CalendarDays, Shield, Sparkles,
   Coffee, EyeOff, Eye, Calendar, Pause, Moon, Sun, Palette
 } from 'lucide-react';
 import { dbService, authService } from './firebase';
@@ -16,6 +16,7 @@ import { DashboardPage } from './components/Dashboard/DashboardPage';
 import { StatisticsPage } from './components/Statistics/StatisticsPage';
 import { ShiftSchedulePage } from './components/ShiftSchedule/ShiftSchedulePage';
 import { AdminPanel } from './components/Admin/AdminPanel';
+import { MbakPage } from './components/Mbak/MbakPage';
 
 // Config & Utils (✅ Unified imports from single source)
 import {
@@ -75,6 +76,7 @@ const AttendanceSystem = () => {
   const activeSaveOperations = useRef(0); // Counter for active save operations
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [mbakTasks, setMbakTasks] = useState([]);
 
   // ✅ Use centralized theme configuration
   const currentTheme = APP_THEMES[theme] || APP_THEMES.dark;
@@ -1958,6 +1960,21 @@ const AttendanceSystem = () => {
         }
       });
 
+      // Listen to Mbak Tasks changes
+      const unsubscribeMbak = dbService.onMbakTasksChange((data) => {
+        if (data && Array.isArray(data)) {
+          console.log('📥 RECEIVED FROM FIREBASE - MBAK TASKS:', {
+            count: data.length,
+            timestamp: new Date().toLocaleTimeString()
+          });
+          isSyncingFromFirebase.current = true;
+          setMbakTasks(data);
+          setTimeout(() => { isSyncingFromFirebase.current = false; }, 100);
+        } else {
+          console.warn('⚠️ No mbak tasks data from Firebase or invalid format');
+        }
+      });
+
       console.log('✅ Firebase realtime listeners active (including orders notifications)!');
 
       // Cleanup listeners on unmount
@@ -1970,6 +1987,7 @@ const AttendanceSystem = () => {
         unsubscribeShiftTasks();
         unsubscribeShiftSchedule();
         unsubscribeOrders();
+        unsubscribeMbak(); // Add mbak tasks unsubscribe
         console.log('🔥 Firebase listeners cleaned up');
       };
     } catch (error) {
@@ -1999,7 +2017,8 @@ const AttendanceSystem = () => {
         dbService.saveYearlyAttendance(yearlyAttendance),
         dbService.saveProductivityData(productivityData),
         dbService.saveCurrentPeriod(currentMonth, currentYear),
-        dbService.saveShiftTasks(shiftTasks)
+        dbService.saveShiftTasks(shiftTasks),
+        dbService.saveMbakTasks(mbakTasks) // Save mbak tasks
         // ✅ Orders saved directly in useOrders hook - DO NOT save here
       ]);
 
@@ -2043,7 +2062,8 @@ const AttendanceSystem = () => {
         dbService.saveYearlyAttendance(yearlyAttendance),
         dbService.saveProductivityData(productivityData),
         dbService.saveCurrentPeriod(currentMonth, currentYear),
-        dbService.saveShiftTasks(shiftTasks)
+        dbService.saveShiftTasks(shiftTasks),
+        dbService.saveMbakTasks(mbakTasks) // Save mbak tasks
         // ✅ Orders saved directly in useOrders hook - DO NOT save here
       ]);
 
@@ -2096,7 +2116,8 @@ const AttendanceSystem = () => {
           employees: employees.length,
           historyTasks: historyCount,
           attentions: attentions.length,
-          yearlyAttendanceKeys: Object.keys(yearlyAttendance).length
+          yearlyAttendanceKeys: Object.keys(yearlyAttendance).length,
+          mbakTasks: mbakTasks.length // Log mbak tasks
         });
 
         // Save to Firebase Firestore ONLY (single source of truth)
@@ -2106,7 +2127,8 @@ const AttendanceSystem = () => {
           dbService.saveYearlyAttendance(yearlyAttendance),
           dbService.saveProductivityData(productivityData),
           dbService.saveCurrentPeriod(currentMonth, currentYear),
-          dbService.saveShiftTasks(shiftTasks)
+          dbService.saveShiftTasks(shiftTasks),
+          dbService.saveMbakTasks(mbakTasks) // Save mbak tasks
           // ✅ Orders saved directly in useOrders hook - DO NOT save here
         ]);
 
@@ -2126,7 +2148,7 @@ const AttendanceSystem = () => {
         endSaveOperation(autoSaveOperationName);
       }
     };
-  }, [employees, attentions, yearlyAttendance, productivityData, currentMonth, currentYear, shiftTasks, isAppLocked, isCheckingAuth]);
+  }, [employees, attentions, yearlyAttendance, productivityData, currentMonth, currentYear, shiftTasks, mbakTasks, isAppLocked, isCheckingAuth]); // Add mbakTasks to deps
 
   // Save shift schedule data to Firebase
   useEffect(() => {
@@ -2492,7 +2514,7 @@ const AttendanceSystem = () => {
     if (task && task.completed) {
       trackProductivity(empId, type);
       addNotification(`✅ ${emp.name} menyelesaikan task: ${task.task}`, 'success');
-      logAction('Selesaikan Task', `${emp.name} - ${task.task}`);
+      logAction('Selesai Task', `${emp.name} - ${task.task}`);
     }
 
     // ✅ CRITICAL FIX: Save fresh data directly using TRANSACTION
@@ -2501,7 +2523,7 @@ const AttendanceSystem = () => {
     endSaveOperation('Toggle Task');
 
     if (!isCurrentlyCompleted) {
-      logSuccess('Selesaikan Task', `${empName} - ${taskName}`);
+      logSuccess('Selesai Task', `${empName} - ${taskName}`);
     }
 
     setIsProcessing(false);
@@ -2550,14 +2572,19 @@ const AttendanceSystem = () => {
         const list = type === 'cleaning' ? 'cleaningTasks' : 'workTasks';
         return {
           ...e,
-          [list]: e[list].map(t => t.id === taskId ? {
-            ...t,
-            startTime: timeStr,
-            endTime: null,
-            duration: null,
-            paused: false,
-            pauseHistory: []
-          } : t)
+          [list]: e[list].map(t => {
+            if (t.id === taskId) {
+              return {
+                ...t,
+                startTime: timeStr,
+                endTime: null,
+                duration: null,
+                paused: false,
+                pauseHistory: []
+              };
+            }
+            return t;
+          })
         };
       }
       return e;
@@ -3004,6 +3031,7 @@ const AttendanceSystem = () => {
         yearlyAttendance,
         productivityData,
         shiftTasks,
+        mbakTasks, // Export mbak tasks
         currentMonth,
         currentYear,
         exportedAt: new Date().toISOString(),
@@ -3041,6 +3069,7 @@ const AttendanceSystem = () => {
         if (imported.yearlyAttendance) setYearlyAttendance(imported.yearlyAttendance);
         if (imported.productivityData) setProductivityData(imported.productivityData);
         if (imported.shiftTasks) setShiftTasks(imported.shiftTasks);
+        if (imported.mbakTasks) setMbakTasks(imported.mbakTasks); // Import mbak tasks
         if (imported.currentMonth !== undefined) setCurrentMonth(imported.currentMonth);
         if (imported.currentYear !== undefined) setCurrentYear(imported.currentYear);
 
@@ -3083,7 +3112,8 @@ const AttendanceSystem = () => {
         dbService.saveAttentions([]),
         dbService.saveYearlyAttendance(defaultYearlyAttendance),
         dbService.saveProductivityData([]),
-        dbService.saveCurrentPeriod(new Date().getMonth(), new Date().getFullYear())
+        dbService.saveCurrentPeriod(new Date().getMonth(), new Date().getFullYear()),
+        dbService.saveMbakTasks([]) // Clear mbak tasks
       ]);
 
       console.log('✅ All data cleared from Firebase');
@@ -3159,6 +3189,10 @@ const AttendanceSystem = () => {
           if (initialData.shiftTasks) {
             console.log('✅ Restoring shift tasks');
             setShiftTasks(initialData.shiftTasks);
+          }
+          if (initialData.mbakTasks) {
+            console.log('✅ Restoring mbak tasks:', initialData.mbakTasks.length);
+            setMbakTasks(initialData.mbakTasks);
           }
 
           // Mark that initial data has been loaded
@@ -3240,6 +3274,128 @@ const AttendanceSystem = () => {
 
   const handleEditEmployee = (employee) => {
     setEditingEmployee({ ...employee });
+  };
+
+  const handleAddEmployee = async (name, id) => {
+    if (!name || !id) {
+      alert('❌ Nama dan ID harus diisi!');
+      return;
+    }
+
+    // Check if ID already exists
+    if (employees.some(emp => emp.id === id)) {
+      alert('❌ ID Karyawan sudah ada!');
+      return;
+    }
+
+    const newEmployee = {
+      id: parseInt(id),
+      name: name,
+      baseSalary: 0, // Default for new employee
+      status: 'belum',
+      lateHours: 0,
+      checkInTime: null,
+      cleaningTasks: [],
+      workTasks: [],
+      shift: null,
+      checkedIn: false,
+      isAdmin: false,
+      breakTime: null,
+      breakDuration: 0,
+      shiftEndAdjustment: 0,
+      overtime: false,
+      shifts: [],
+      breakHistory: [],
+      hasBreakToday: false,
+      shiftEndTime: null,
+      izinTime: null,
+      izinHistory: [],
+      completedTasksHistory: [],
+      pauseHistory: []
+    };
+
+    const updatedEmployees = [...employees, newEmployee];
+    setEmployees(updatedEmployees);
+
+    // Update yearlyAttendance for the new employee
+    const currentYearValue = new Date().getFullYear();
+    setYearlyAttendance(prev => {
+      if (prev[name]) return prev; // Avoid overwriting if they somehow exist
+
+      // Generate attendance skeleton for the new employee
+      const empAttendance = {};
+      for (let m = 0; m < 12; m++) {
+        empAttendance[m] = {};
+        const daysInMonth = new Date(currentYearValue, m + 1, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+          empAttendance[m][d] = { status: 'belum', lateHours: 0 };
+        }
+      }
+
+      return {
+        ...prev,
+        [name]: empAttendance
+      };
+    });
+
+    // Save to Firebase
+    try {
+      startSaveOperation('Tambah Karyawan');
+      // Save all employees list
+      await dbService.saveEmployees(updatedEmployees);
+
+      // Save yearly attendance separately to reflect the new employee skeleton
+      // Note: setYearlyAttendance is async in React, but we need to save the new state.
+      // Since it's a new employee, we can just save it transactionally or wait for auto-save.
+      // To be safe, let's trigger an immediate save for yearly attendance as well.
+      needsImmediateSave.current = true;
+
+      endSaveOperation('Tambah Karyawan');
+      addNotification(`✅ Karyawan ${name} berhasil ditambahkan!`, 'success');
+      return true;
+    } catch (error) {
+      console.error('Error adding employee:', error);
+      alert('❌ Gagal menambahkan karyawan ke Firebase');
+      endSaveOperation('Tambah Karyawan');
+      return false;
+    }
+  };
+
+  const handleDeleteEmployee = async (empId) => {
+    const employeeToDelete = employees.find(emp => emp.id === empId);
+    if (!employeeToDelete) return;
+
+    if (!window.confirm(`⚠️ Apakah Anda yakin ingin menghapus karyawan "${employeeToDelete.name}"? Semua data terkait (termasuk riwayat kalender) akan hilang.`)) {
+      return;
+    }
+
+    try {
+      startSaveOperation('Hapus Karyawan');
+
+      const updatedEmployees = employees.filter(emp => emp.id !== empId);
+      setEmployees(updatedEmployees);
+
+      // Also remove from yearlyAttendance to stay clean
+      setYearlyAttendance(prev => {
+        const next = { ...prev };
+        delete next[employeeToDelete.name];
+        return next;
+      });
+
+      // Save to Firebase
+      await dbService.saveEmployees(updatedEmployees);
+      // Trigger immediate save for yearly attendance
+      needsImmediateSave.current = true;
+
+      endSaveOperation('Hapus Karyawan');
+      addNotification(`🗑️ Karyawan ${employeeToDelete.name} berhasil dihapus!`, 'warning');
+      return true;
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+      alert('❌ Gagal menghapus karyawan dari Firebase');
+      endSaveOperation('Hapus Karyawan');
+      return false;
+    }
   };
 
   const handleSaveEmployee = () => {
@@ -3564,7 +3720,35 @@ const AttendanceSystem = () => {
     }
   };
 
-  // 📦 ORDER MANAGEMENT FUNCTIONS - REFACTORED TO useOrders HOOK
+  // 📦 MBAK TASKS MANAGEMENT FUNCTIONS
+  const addMbakTask = async (text) => {
+    if (!text?.trim()) return;
+    const newTaskObj = {
+      id: Date.now(),
+      task: text,
+      completed: false,
+      createdAt: new Date().toLocaleString('id-ID')
+    };
+    const updatedTasks = [...mbakTasks, newTaskObj];
+    setMbakTasks(updatedTasks);
+    await dbService.saveMbakTasks(updatedTasks);
+    addNotification('✅ Task Mbak berhasil ditambahkan!', 'success');
+  };
+
+  const deleteMbakTask = async (id) => {
+    const updatedTasks = mbakTasks.filter(t => t.id !== id);
+    setMbakTasks(updatedTasks);
+    await dbService.saveMbakTasks(updatedTasks);
+    addNotification('🗑️ Task Mbak berhasil dihapus!', 'warning');
+  };
+
+  const toggleMbakTask = async (id) => {
+    const updatedTasks = mbakTasks.map(t =>
+      t.id === id ? { ...t, completed: !t.completed, completedAt: !t.completed ? new Date().toLocaleString('id-ID') : null } : t
+    );
+    setMbakTasks(updatedTasks);
+    await dbService.saveMbakTasks(updatedTasks);
+  };
   // All order management functions (addOrder, updateOrder, updateOrderStatus, deleteOrder, addOrderNote)
   // are now in ordersHook - see initialization at line 2068
 
@@ -3815,26 +3999,31 @@ const AttendanceSystem = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${currentTheme.bg} p-6`}>
+    <div className={`min-h-screen bg-gradient-to-br ${currentTheme.bg} p-4 sm:p-6`}>
       <div className="max-w-7xl mx-auto">
-        <nav className={`${currentTheme.nav} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-2 mb-8`}>
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
+        <nav className={`${currentTheme.nav} border-2 ${currentTheme.borderColor} ${currentTheme.shadow} p-2 mb-6 sm:mb-8`}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0 px-1">
               {[
                 { page: 'dashboard', icon: Home, label: 'Dashboard' },
                 { page: 'orderan', icon: ShoppingCart, label: 'Orderan' },
                 { page: 'leaderboard', icon: Trophy, label: 'Leaderboard' },
                 { page: 'statistics', icon: BarChart3, label: 'Statistik' },
                 { page: 'shift', icon: CalendarDays, label: 'Jadwal Shift' },
+                { page: 'mbak', icon: Sparkles, label: 'Mbak' },
                 ...(isAdmin ? [{ page: 'admin', icon: Shield, label: 'Admin Panel' }] : [])
               ].map(({ page, icon: Icon, label }) => (
-                <button key={page} onClick={() => setActivePage(page)} className={`flex items-center gap-2 px-5 py-2.5 font-bold transition-all text-sm border-2 ${activePage === page ? currentTheme.navActive : currentTheme.navInactive}`}>
-                  <Icon size={16} />
+                <button
+                  key={page}
+                  onClick={() => setActivePage(page)}
+                  className={`flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 font-bold transition-all text-xs md:text-sm border-2 whitespace-nowrap ${activePage === page ? currentTheme.navActive : currentTheme.navInactive}`}
+                >
+                  <Icon size={14} className="md:w-4 md:h-4" />
                   {label}
                 </button>
               ))}
             </div>
-            <div className="flex gap-3">
+            <div className="flex items-center justify-between md:justify-end gap-3 px-1">
               {/* ✅ REALTIME SYNC INDICATOR */}
               <div className={`flex items-center gap-2 px-3 py-2 font-bold border-2 ${currentTheme.borderColor} bg-black text-white ${currentTheme.shadow} text-xs`}>
                 <div className={`w-2 h-2 rounded-full bg-white ${isLiveSync ? 'animate-pulse' : ''}`}></div>
@@ -3969,6 +4158,15 @@ const AttendanceSystem = () => {
             setExpandedLeaderboard={setExpandedLeaderboard}
           />
         )}
+        {activePage === 'mbak' && (
+          <MbakPage
+            currentTheme={currentTheme}
+            tasks={mbakTasks}
+            addTask={addMbakTask}
+            deleteTask={deleteMbakTask}
+            toggleTask={toggleMbakTask}
+          />
+        )}
         {activePage === 'statistics' && (
           <StatisticsPage
             employees={employees}
@@ -4019,6 +4217,8 @@ const AttendanceSystem = () => {
             setEditingEmployee={setEditingEmployee}
             handleSaveEmployee={handleSaveEmployee}
             handleEditEmployee={handleEditEmployee}
+            handleAddEmployee={handleAddEmployee}
+            handleDeleteEmployee={handleDeleteEmployee}
             handleDeleteTask={handleDeleteTask}
             handleResetEmployee={handleResetEmployee}
             currentMonth={currentMonth}
