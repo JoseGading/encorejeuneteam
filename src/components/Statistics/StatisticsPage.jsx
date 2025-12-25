@@ -101,25 +101,25 @@ export const StatisticsPage = React.memo(({
 
       {/* Tab Selector */}
       <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-2`}>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <button
             onClick={() => setStatisticsTab('history')}
-            className={`flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-medium transition-all text-sm ${statisticsTab === 'history'
-                ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
-                : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
+            className={`flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-medium transition-all text-xs sm:text-sm ${statisticsTab === 'history'
+              ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
+              : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
               }`}
           >
-            <CheckCircle size={18} />
+            <CheckCircle size={16} className="sm:w-[18px] sm:h-[18px]" />
             History Task Selesai
           </button>
           <button
             onClick={() => setStatisticsTab('attendance')}
-            className={`flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-medium transition-all text-sm ${statisticsTab === 'attendance'
-                ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
-                : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
+            className={`flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-medium transition-all text-xs sm:text-sm ${statisticsTab === 'attendance'
+              ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
+              : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
               }`}
           >
-            <Calendar size={18} />
+            <Calendar size={16} className="sm:w-[18px] sm:h-[18px]" />
             Statistik Kehadiran
           </button>
         </div>
@@ -127,15 +127,15 @@ export const StatisticsPage = React.memo(({
 
       {/* Task History Section */}
       {statisticsTab === 'history' && (
-        <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6`}>
-          <div className="flex items-center justify-between mb-6">
+        <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-4 sm:p-6`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
-              <div className={`${currentTheme.accent} p-2.5 rounded-xl`}>
-                <CheckCircle className="text-white" size={20} />
+              <div className={`${currentTheme.accent} p-2 sm:p-2.5 rounded-xl flex-shrink-0`}>
+                <CheckCircle className="text-white w-[18px] h-[18px] sm:w-5 sm:h-5" />
               </div>
               <div>
-                <h2 className={`text-xl font-semibold ${currentTheme.text}`}>History Task Selesai</h2>
-                <p className={`text-xs ${currentTheme.subtext}`}>
+                <h2 className={`text-lg sm:text-xl font-semibold ${currentTheme.text}`}>History Task Selesai</h2>
+                <p className={`text-[10px] sm:text-xs ${currentTheme.subtext}`}>
                   {selectedDate === new Date().toDateString()
                     ? 'Task hari ini'
                     : `Task tanggal ${new Date(selectedDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`}
@@ -475,11 +475,11 @@ export const StatisticsPage = React.memo(({
 
       {/* Attendance Statistics Section */}
       {statisticsTab === 'attendance' && (
-        <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-6`}>
-          <div className="flex items-center justify-between mb-6">
+        <div className={`${currentTheme.card} rounded-2xl ${currentTheme.shadow} border-2 ${currentTheme.borderColor} p-4 sm:p-6`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className={`text-2xl font-bold ${currentTheme.text}`}>Statistik Kehadiran</h2>
-              <p className={`text-sm ${currentTheme.subtext} mt-1`}>{monthNames[currentMonth]} {currentYear}</p>
+              <h2 className={`text-xl sm:text-2xl font-bold ${currentTheme.text}`}>Statistik Kehadiran</h2>
+              <p className={`text-xs sm:text-sm ${currentTheme.subtext} mt-1`}>{monthNames[currentMonth]} {currentYear}</p>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setCurrentMonth(Math.max(0, currentMonth - 1))} disabled={currentMonth === 0} className={`p-2 rounded-lg border ${currentTheme.badge} hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors hover:scale-[1.02] active:scale-[0.98]`}>
@@ -495,80 +495,82 @@ export const StatisticsPage = React.memo(({
             const mStats = calculateMonthlyStats(e.name, currentMonth);
             return (
               <div key={e.id} className="mb-8 last:mb-0">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className={`text-lg font-semibold ${currentTheme.text}`}>{e.name}</h3>
-                  <div className="flex gap-2 text-xs">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-4">
+                  <h3 className={`text-base sm:text-lg font-semibold ${currentTheme.text}`}>{e.name}</h3>
+                  <div className="flex flex-wrap gap-2 text-[10px] sm:text-xs">
                     {['hadir', 'telat', 'lembur', 'izin', 'libur', 'sakit', 'alpha'].map(s => (
-                      <div key={s} className={`px-2.5 py-1 rounded-lg font-medium ${getAttendancePillClass(s)}`}>
+                      <div key={s} className={`px-2 py-1 rounded-lg font-medium whitespace-nowrap ${getAttendancePillClass(s)}`}>
                         {(statusConfig?.[s]?.label || s)}: {(mStats?.[s] || 0)}{s === 'telat' && mStats.totalLateHours > 0 ? ` (${mStats.totalLateHours}j)` : ''}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-2 mb-4">
-                  {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
-                    <div key={d} className={`text-center text-xs font-medium ${currentTheme.subtext} py-1.5`}>{d}</div>
-                  ))}
-                  {[...Array(days)].map((_, i) => {
-                    const day = i + 1;
-                    const data = yearlyAttendance[e.name][currentMonth][day];
+                <div className="overflow-x-auto no-scrollbar -mx-2 px-2">
+                  <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4 min-w-[320px]">
+                    {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
+                      <div key={d} className={`text-center text-[10px] sm:text-xs font-medium ${currentTheme.subtext} py-1`}>{d}</div>
+                    ))}
+                    {[...Array(days)].map((_, i) => {
+                      const day = i + 1;
+                      const data = yearlyAttendance[e.name][currentMonth][day];
 
-                    // Only show status if there's actual data (not default/empty)
-                    const hasData = data && data.status && data.status !== 'belum';
+                      // Only show status if there's actual data (not default/empty)
+                      const hasData = data && data.status && data.status !== 'belum';
 
-                    // Check if this day has overtime (multiple statuses)
-                    const hasOvertime = data && data.status === 'lembur';
-                    const baseStatus = hasOvertime && data.overtimeBaseStatus ? data.overtimeBaseStatus : data?.status;
-                    const baseCalendarBg = statusConfig?.[baseStatus]?.calendarBg || statusConfig?.[baseStatus]?.bg || 'bg-blue-600';
-                    const overtimeCalendarBg = statusConfig?.lembur?.calendarBg || statusConfig?.lembur?.bg || 'bg-blue-800';
+                      // Check if this day has overtime (multiple statuses)
+                      const hasOvertime = data && data.status === 'lembur';
+                      const baseStatus = hasOvertime && data.overtimeBaseStatus ? data.overtimeBaseStatus : data?.status;
+                      const baseCalendarBg = statusConfig?.[baseStatus]?.calendarBg || statusConfig?.[baseStatus]?.bg || 'bg-blue-600';
+                      const overtimeCalendarBg = statusConfig?.lembur?.calendarBg || statusConfig?.lembur?.bg || 'bg-blue-800';
 
-                    return (
-                      <div key={day} className="relative">
-                        {hasData ? (
-                          hasOvertime ? (
-                            // Multi-color for overtime days (hadir/telat + lembur)
-                            <div
-                              className="calendar-cell rounded-lg p-2.5 text-center text-white text-xs font-medium hover:scale-105 transition-transform cursor-pointer shadow-sm overflow-hidden relative"
-                              onClick={() => {
-                                const clickedDate = new Date(currentYear, currentMonth, day);
-                                setSelectedDate(clickedDate.toDateString());
-                                setStatisticsTab('history');
-                              }}
-                              title={`${day} ${monthNames[currentMonth]}: ${baseStatus === 'telat' ? 'Telat' : 'Hadir'} + Lembur${data.lateHours > 0 ? ` (${data.lateHours}h telat)` : ''}`}
-                            >
-                              {/* Base status color (left half) */}
-                              <div className={`absolute inset-0 ${baseCalendarBg}`} style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}></div>
-                              {/* Overtime color (right half) */}
-                              <div className={`absolute inset-0 ${overtimeCalendarBg}`} style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }}></div>
-                              {/* Day number */}
-                              <span className="relative z-10">{day}</span>
-                            </div>
+                      return (
+                        <div key={day} className="relative aspect-square sm:aspect-auto">
+                          {hasData ? (
+                            hasOvertime ? (
+                              // Multi-color for overtime days (hadir/telat + lembur)
+                              <div
+                                className="calendar-cell w-full h-full sm:h-auto rounded-md sm:rounded-lg p-1.5 sm:p-2.5 text-center text-white text-[10px] sm:text-xs font-medium hover:scale-105 transition-transform cursor-pointer shadow-sm overflow-hidden relative flex items-center justify-center sm:block"
+                                onClick={() => {
+                                  const clickedDate = new Date(currentYear, currentMonth, day);
+                                  setSelectedDate(clickedDate.toDateString());
+                                  setStatisticsTab('history');
+                                }}
+                                title={`${day} ${monthNames[currentMonth]}: ${baseStatus === 'telat' ? 'Telat' : 'Hadir'} + Lembur${data.lateHours > 0 ? ` (${data.lateHours}h telat)` : ''}`}
+                              >
+                                {/* Base status color (left half) */}
+                                <div className={`absolute inset-0 ${baseCalendarBg}`} style={{ clipPath: 'polygon(0 0, 50% 0, 50% 100%, 0 100%)' }}></div>
+                                {/* Overtime color (right half) */}
+                                <div className={`absolute inset-0 ${overtimeCalendarBg}`} style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }}></div>
+                                {/* Day number */}
+                                <span className="relative z-10">{day}</span>
+                              </div>
+                            ) : (
+                              // Single color for normal days
+                              <div
+                                className={`calendar-cell w-full h-full sm:h-auto ${statusConfig?.[data.status]?.calendarBg || statusConfig?.[data.status]?.bg || 'bg-blue-600'} rounded-md sm:rounded-lg p-1.5 sm:p-2.5 text-center text-white text-[10px] sm:text-xs font-medium hover:scale-105 transition-transform cursor-pointer shadow-sm flex items-center justify-center sm:block`}
+                                onClick={() => {
+                                  const clickedDate = new Date(currentYear, currentMonth, day);
+                                  setSelectedDate(clickedDate.toDateString());
+                                  setStatisticsTab('history');
+                                }}
+                                title={`${day} ${monthNames[currentMonth]}: ${(statusConfig?.[data.status]?.label || data.status)}${data.lateHours > 0 ? ` (${data.lateHours}h telat)` : ''}`}
+                              >
+                                {day}
+                              </div>
+                            )
                           ) : (
-                            // Single color for normal days
                             <div
-                              className={`calendar-cell ${statusConfig?.[data.status]?.calendarBg || statusConfig?.[data.status]?.bg || 'bg-blue-600'} rounded-lg p-2.5 text-center text-white text-xs font-medium hover:scale-105 transition-transform cursor-pointer shadow-sm`}
-                              onClick={() => {
-                                const clickedDate = new Date(currentYear, currentMonth, day);
-                                setSelectedDate(clickedDate.toDateString());
-                                setStatisticsTab('history');
-                              }}
-                              title={`${day} ${monthNames[currentMonth]}: ${(statusConfig?.[data.status]?.label || data.status)}${data.lateHours > 0 ? ` (${data.lateHours}h telat)` : ''}`}
+                              className={`calendar-cell w-full h-full sm:h-auto ${currentTheme.badge} rounded-md sm:rounded-lg p-1.5 sm:p-2.5 text-center text-[10px] sm:text-xs font-medium border border-dashed ${currentTheme.borderColor} ${currentTheme.text} flex items-center justify-center sm:block`}
+                              title={`${day} ${monthNames[currentMonth]}: Tidak ada data`}
                             >
                               {day}
                             </div>
-                          )
-                        ) : (
-                          <div
-                            className={`calendar-cell ${currentTheme.badge} rounded-lg p-2.5 text-center text-xs font-medium border border-dashed ${currentTheme.borderColor} ${currentTheme.text}`}
-                            title={`${day} ${monthNames[currentMonth]}: Tidak ada data`}
-                          >
-                            {day}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Total Late Hours Summary */}
