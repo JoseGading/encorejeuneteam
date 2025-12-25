@@ -23,6 +23,7 @@ import {
   CLEANING_TASKS_PAGI,
   CLOSING_TASKS_MALAM,
   MONTH_NAMES,
+  SHIFT_CONFIG,
   APP_THEMES,
   STORAGE_KEYS
 } from './config';
@@ -244,11 +245,6 @@ const AttendanceSystem = () => {
     return distributedTasks;
   };
 
-  // Shift configuration
-  const SHIFT_CONFIG = {
-    pagi: { start: 9, end: 17, maxCheckIn: 9, name: 'Pagi' },
-    malam: { start: 17, end: 1, maxCheckIn: 17, name: 'Malam' }
-  };
 
   // Deteksi shift berdasarkan jam
   const detectShift = () => {
@@ -2171,51 +2167,6 @@ const AttendanceSystem = () => {
 
   // ✅ MOVED: These useEffects moved to AFTER ordersHook initialization (see below)
 
-  // DISABLED: Auto-archive completed tasks daily (at midnight)
-  // Data sekarang disimpan selamanya, tidak auto-archive
-  // useEffect(() => {
-  //   const checkAndArchive = () => {
-  //     const today = new Date().toDateString();
-  //     
-  //     setEmployees(prev => prev.map(emp => {
-  //       const completedTasks = [...emp.cleaningTasks, ...emp.workTasks].filter(t => t.completed);
-  //       
-  //       // Archive tasks that are not from today
-  //       const tasksToArchive = completedTasks.filter(t => {
-  //         const taskDate = t.completedAt ? new Date(t.completedAt).toDateString() : null;
-  //         return taskDate && taskDate !== today;
-  //       });
-  //       
-  //       if (tasksToArchive.length > 0) {
-  //         // Add to permanent history
-  //         const newHistory = [...emp.completedTasksHistory, ...tasksToArchive];
-  //         
-  //         // Remove archived tasks from current lists
-  //         const updatedCleaningTasks = emp.cleaningTasks.filter(t => 
-  //           !tasksToArchive.some(archived => archived.id === t.id)
-  //         );
-  //         const updatedWorkTasks = emp.workTasks.filter(t => 
-  //           !tasksToArchive.some(archived => archived.id === t.id)
-  //         );
-  //         
-  //         return {
-  //           ...emp,
-  //           cleaningTasks: updatedCleaningTasks,
-  //           workTasks: updatedWorkTasks,
-  //           completedTasksHistory: newHistory
-  //         };
-  //       }
-  //       
-  //       return emp;
-  //     }));
-  //   };
-  //   
-  //   // Check every hour
-  //   const interval = setInterval(checkAndArchive, 3600000);
-  //   checkAndArchive(); // Initial check
-  //   
-  //   return () => clearInterval(interval);
-  // }, []);
 
   // ✅ Enhanced: Prevent data loss and page refresh during save operations
   useEffect(() => {
