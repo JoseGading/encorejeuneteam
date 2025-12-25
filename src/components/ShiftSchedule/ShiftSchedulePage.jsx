@@ -396,7 +396,7 @@ export const ShiftSchedulePage = React.memo(({
       .finally(() => {
         if (endSaveOperation) endSaveOperation('Shift: Set Libur');
       });
-  }, [shiftScheduleData, shiftScheduleMonth, shiftScheduleYear, karyawan, setYearlyAttendance]);
+  }, [shiftScheduleData, shiftScheduleMonth, shiftScheduleYear, karyawan, setYearlyAttendance, startSaveOperation, endSaveOperation]);
 
   return (
     <div className="space-y-6 relative z-10">
@@ -441,9 +441,47 @@ export const ShiftSchedulePage = React.memo(({
               >
                 <ChevronLeft size={20} />
               </button>
-              <span className={`text-lg font-semibold ${currentTheme.text} px-4`}>
-                {monthNames[shiftScheduleMonth]} {shiftScheduleYear}
-              </span>
+              <div className="flex items-center gap-2 px-2">
+                {/* Manual Month Selection */}
+                <select
+                  value={shiftScheduleMonth}
+                  onChange={(e) => {
+                    const newMonth = parseInt(e.target.value, 10);
+                    setShiftScheduleData([]);
+                    setShiftScheduleWeek(0);
+                    currentWeekRef.current = 0;
+                    localStorage.setItem('shiftScheduleWeek', '0');
+                    setShiftScheduleMonth(newMonth);
+                  }}
+                  className={`bg-transparent text-lg font-semibold ${currentTheme.text} cursor-pointer focus:outline-none border-b-2 border-transparent hover:border-blue-500 transition-all`}
+                >
+                  {monthNames.map((name, index) => (
+                    <option key={index} value={index} className="bg-slate-800 text-white">
+                      {name}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Manual Year Selection */}
+                <select
+                  value={shiftScheduleYear}
+                  onChange={(e) => {
+                    const newYear = parseInt(e.target.value, 10);
+                    setShiftScheduleData([]);
+                    setShiftScheduleWeek(0);
+                    currentWeekRef.current = 0;
+                    localStorage.setItem('shiftScheduleWeek', '0');
+                    setShiftScheduleYear(newYear);
+                  }}
+                  className={`bg-transparent text-lg font-semibold ${currentTheme.text} cursor-pointer focus:outline-none border-b-2 border-transparent hover:border-blue-500 transition-all`}
+                >
+                  {[shiftScheduleYear - 2, shiftScheduleYear - 1, shiftScheduleYear, shiftScheduleYear + 1, shiftScheduleYear + 2].map(year => (
+                    <option key={year} value={year} className="bg-slate-800 text-white">
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
                 type="button"
                 onClick={(e) => {
@@ -555,8 +593,8 @@ export const ShiftSchedulePage = React.memo(({
                       type="button"
                       onClick={() => updateLibur(actualIdx, 'Tidak Ada')}
                       className={`px-2 py-1 text-xs rounded-md transition-all ${row.libur === 'Tidak Ada'
-                          ? 'bg-blue-700 text-white font-bold'
-                          : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
+                        ? 'bg-blue-700 text-white font-bold'
+                        : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
                         }`}
                     >
                       Tidak Ada
@@ -567,8 +605,8 @@ export const ShiftSchedulePage = React.memo(({
                         type="button"
                         onClick={() => updateLibur(actualIdx, k)}
                         className={`px-2 py-1 text-xs rounded-md transition-all ${row.libur === k
-                            ? 'bg-blue-600 text-white font-bold'
-                            : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
+                          ? 'bg-blue-600 text-white font-bold'
+                          : `${currentTheme.badge} ${currentTheme.text} hover:bg-white/5`
                           }`}
                       >
                         {k}
@@ -588,8 +626,8 @@ export const ShiftSchedulePage = React.memo(({
                         <span
                           key={i}
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${doubleShiftPerson === k
-                              ? `bg-blue-700 text-white ${currentTheme.shadow}`
-                              : 'bg-blue-600 text-white'
+                            ? `bg-blue-700 text-white ${currentTheme.shadow}`
+                            : 'bg-blue-600 text-white'
                             }`}
                         >
                           {k}
@@ -613,8 +651,8 @@ export const ShiftSchedulePage = React.memo(({
                         <span
                           key={i}
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${doubleShiftPerson === k
-                              ? `bg-blue-700 text-white ${currentTheme.shadow}`
-                              : 'bg-blue-600 text-white'
+                            ? `bg-blue-700 text-white ${currentTheme.shadow}`
+                            : 'bg-blue-600 text-white'
                             }`}
                         >
                           {k}
