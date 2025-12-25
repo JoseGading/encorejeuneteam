@@ -149,8 +149,8 @@ export const LeaderboardPage = ({
                 key={period}
                 onClick={() => setLeaderboardPeriod(period)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${leaderboardPeriod === period
-                    ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
-                    : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
+                  ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
+                  : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
                   }`}
               >
                 {periodLabels[period]}
@@ -165,8 +165,8 @@ export const LeaderboardPage = ({
                 key={type}
                 onClick={() => setLeaderboardTaskType(type)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${leaderboardTaskType === type
-                    ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
-                    : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
+                  ? `${currentTheme.accent} ${currentTheme.accentHover} text-white ${currentTheme.shadow} hover:scale-[1.01] active:scale-[0.99]`
+                  : `${currentTheme.badge} hover:bg-white/5 hover:scale-[1.01] active:scale-[0.99]`
                   }`}
               >
                 {taskTypeLabels[type]}
@@ -248,7 +248,7 @@ export const LeaderboardPage = ({
                       <div key={idx} className={`${currentTheme.badge} rounded-lg p-3`}>
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <p className={`font-medium ${currentTheme.text}`}>{task.title}</p>
+                            <p className={`font-medium ${currentTheme.text}`}>{task.task}</p>
                             <div className="flex gap-3 mt-1 text-xs">
                               <span className={currentTheme.subtext}>
                                 ✅ {new Date(task.completedAt).toLocaleString('id-ID', {
