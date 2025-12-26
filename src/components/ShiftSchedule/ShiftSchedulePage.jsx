@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { CalendarDays, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { dbService } from '../../firebase';
 
 /**
@@ -446,40 +446,38 @@ export const ShiftSchedulePage = React.memo(({
                 <select
                   value={shiftScheduleMonth}
                   onChange={(e) => {
-                    const newMonth = parseInt(e.target.value, 10);
-                    setShiftScheduleData([]);
-                    setShiftScheduleWeek(0);
-                    currentWeekRef.current = 0;
-                    localStorage.setItem('shiftScheduleWeek', '0');
+                    e.preventDefault();
+                    e.stopPropagation(); // Stop propagation
+                    const newMonth = parseInt(e.target.value);
+                    setShiftScheduleData([]); // Clear data to trigger regeneration
                     setShiftScheduleMonth(newMonth);
+                    setShiftScheduleWeek(0); // Reset to first week
                   }}
-                  className={`bg-transparent text-sm sm:text-lg font-semibold ${currentTheme.text} cursor-pointer focus:outline-none border-b-2 border-transparent hover:border-blue-500 transition-all`}
+                  className={`bg-transparent ${currentTheme.text} font-bold text-sm sm:text-lg focus:outline-none cursor-pointer appearance-none hover:bg-white/5 p-1 rounded`}
+                  style={{ textAlignLast: 'center' }}
                 >
-                  {monthNames.map((name, index) => (
-                    <option key={index} value={index} className="bg-slate-800 text-white">
-                      {name}
-                    </option>
+                  {monthNames.map((m, i) => (
+                    <option key={i} value={i} className="text-black">{m}</option>
                   ))}
                 </select>
 
-                {/* Manual Year Selection */}
+                {/* Year Selection */}
                 <select
                   value={shiftScheduleYear}
                   onChange={(e) => {
-                    const newYear = parseInt(e.target.value, 10);
-                    setShiftScheduleData([]);
-                    setShiftScheduleWeek(0);
-                    currentWeekRef.current = 0;
-                    localStorage.setItem('shiftScheduleWeek', '0');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const newYear = parseInt(e.target.value);
+                    setShiftScheduleData([]); // Clear data to trigger regeneration
                     setShiftScheduleYear(newYear);
+                    setShiftScheduleWeek(0);
                   }}
-                  className={`bg-transparent text-sm sm:text-lg font-semibold ${currentTheme.text} cursor-pointer focus:outline-none border-b-2 border-transparent hover:border-blue-500 transition-all`}
+                  className={`bg-transparent ${currentTheme.text} font-bold text-sm sm:text-lg focus:outline-none cursor-pointer appearance-none hover:bg-white/5 p-1 rounded`}
                 >
-                  {[shiftScheduleYear - 2, shiftScheduleYear - 1, shiftScheduleYear, shiftScheduleYear + 1, shiftScheduleYear + 2].map(year => (
-                    <option key={year} value={year} className="bg-slate-800 text-white">
-                      {year}
-                    </option>
-                  ))}
+                  {[...Array(5)].map((_, i) => {
+                    const year = new Date().getFullYear() - 2 + i;
+                    return <option key={year} value={year} className="text-black">{year}</option>;
+                  })}
                 </select>
               </div>
               <button
@@ -670,7 +668,7 @@ export const ShiftSchedulePage = React.memo(({
         )}
       </div>
 
-    </div>
+    </div >
   );
 });
 
