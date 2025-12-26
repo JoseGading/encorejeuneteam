@@ -168,6 +168,14 @@ const AttendanceSystem = () => {
   };
   const currentWeekRef = useRef(getSavedWeek()); // Keep track of current week to prevent reset
 
+  // ✅ PERSIST: Track current view to prevent Firebase from overwriting manual navigation
+  const viewShiftScheduleRef = useRef({ month: new Date().getMonth(), year: new Date().getFullYear() });
+
+  // Sync ref with state
+  useEffect(() => {
+    viewShiftScheduleRef.current = { month: shiftScheduleMonth, year: shiftScheduleYear };
+  }, [shiftScheduleMonth, shiftScheduleYear]); // This effect must be separate to update ref
+
   // UI states for Orderan page (kept in App for now for shared access)
   const [showAddForm, setShowAddForm] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState(null);
@@ -1880,11 +1888,24 @@ const AttendanceSystem = () => {
           if (scheduleArray && Array.isArray(scheduleArray)) {
             console.log('🔄 Firebase shift schedule update:', { dataLength: scheduleArray.length, month: data.month, year: data.year });
             isSyncingFromFirebase.current = true;
-            setShiftScheduleData(scheduleArray);
-            setShiftScheduleMonth(data.month || new Date().getMonth());
-            setShiftScheduleYear(data.year || new Date().getFullYear());
-            // DON'T reset week when data updates - keep current week position
-            // setShiftScheduleWeek(data.week || 0); // REMOVED - causes jump to week 1
+
+            // ✅ CRITICAL FIX: Only update if the received data matches the User's current view
+            // This prevents "jumping back" to the saved month when user is browsing other months
+            const currentView = viewShiftScheduleRef.current;
+            const isSameMonth = currentView.month === (data.month || new Date().getMonth());
+            const isSameYear = currentView.year === (data.year || new Date().getFullYear());
+
+            if (isSameMonth && isSameYear) {
+              console.log('✅ Syncing shift schedule (View matches DB)');
+              setShiftScheduleData(scheduleArray);
+              setShiftScheduleMonth(data.month || new Date().getMonth());
+              setShiftScheduleYear(data.year || new Date().getFullYear());
+            } else {
+              console.log(`⏸️ Skipping shift schedule sync: View (${currentView.month + 1}/${currentView.year}) != DB (${(data.month || 0) + 1}/${data.year})`);
+              // We do NOT update the data, because the data from DB belongs to a different month
+              // and would show incorrect shifts for the currently viewed dates.
+            }
+
             setTimeout(() => { isSyncingFromFirebase.current = false; }, 100);
           } else {
             console.warn('⚠️ Invalid shift schedule data from Firebase:', data);
