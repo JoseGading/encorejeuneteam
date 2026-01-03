@@ -300,6 +300,13 @@ const AttendanceSystem = () => {
   // ✅ Initialize ordersHook EARLY (right after employees state)
   const ordersHook = useOrders(addNotification, employees, isSyncingFromFirebase, { startSaveOperation, endSaveOperation });
 
+  // ✅ CRITICAL FIX for Realtime Orders: Use a Ref to hold the latest setOrders function
+  // This prevents stale closures in the useEffect listener from using an old version of the hook
+  const setOrdersRef = useRef(ordersHook.setOrders);
+  useEffect(() => {
+    setOrdersRef.current = ordersHook.setOrders;
+  }, [ordersHook.setOrders]);
+
   // Check-in employee dengan sistem absen otomatis
   const checkInEmployee = async (empId) => {
     // ✅ PREVENT DOUBLE-CLICK
@@ -1976,7 +1983,8 @@ const AttendanceSystem = () => {
 
           // ✅ Update orders state from Firebase AFTER notifications processed
           isSyncingFromFirebase.current = true;
-          ordersHook.setOrders(data);
+          // Use Ref to ensure we always call the latest setter function
+          setOrdersRef.current(data);
           setTimeout(() => { isSyncingFromFirebase.current = false; }, 100);
         }
       });
