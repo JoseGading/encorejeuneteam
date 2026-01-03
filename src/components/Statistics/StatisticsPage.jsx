@@ -511,6 +511,12 @@ export const StatisticsPage = React.memo(({
                     {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map(d => (
                       <div key={d} className={`text-center text-[10px] sm:text-xs font-medium ${currentTheme.subtext} py-1`}>{d}</div>
                     ))}
+
+                    {/* Empty cells for previous month days */}
+                    {[...Array(first)].map((_, i) => (
+                      <div key={`empty-${i}`} className="aspect-square sm:aspect-auto"></div>
+                    ))}
+
                     {[...Array(days)].map((_, i) => {
                       const day = i + 1;
                       const data = yearlyAttendance[e.name][currentMonth][day];
